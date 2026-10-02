@@ -1,0 +1,37 @@
+experiment_name: baseline
+experiment_dir: experiments/baseline
+seed: 42
+task: classification
+
+data:
+  data_dir: train_data_update_03-31_v2/train
+  val_split: 0.1
+  invert: true
+
+model:
+  num_classes: 12
+  downsample_mode: maxpool # maxpool | stride
+  use_se: false
+  dropout: 0.4
+
+augment:
+  shift: 2 # 随机平移范围（像素）
+  random_erasing: false
+  affine: false
+  mixup_alpha: 0.0
+
+train:
+  optimizer: adamw
+  lr: 1.0e-3
+  weight_decay: 5.0e-5
+  batch_size: 64
+  epochs: 150
+  label_smoothing: 0.0
+  use_ema: false
+  lr_schedule:
+    enabled: true
+    type: cosine
+    lr_min: 1.0e-5
+  early_stopping:
+    enabled: true
+    patience: 30

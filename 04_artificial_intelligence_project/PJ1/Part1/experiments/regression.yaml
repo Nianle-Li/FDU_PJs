@@ -1,0 +1,26 @@
+experiment_name: regression
+experiment_dir: "experiments/regression"
+seed: 42
+task: regression
+
+regression:
+  n_samples: 2048
+  val_split: 0.1
+
+model:
+  layers: [1, 128, 128, 1]
+  activations: [tanh, tanh]
+  output_activation: linear
+
+train:
+  batch_size: 32
+  epochs: 200
+  lr: 0.01
+  momentum: 0.9
+  weight_decay: 0.0
+  early_stopping:
+    enabled: true
+    patience: 20
+
+logging:
+  save_best_only: true

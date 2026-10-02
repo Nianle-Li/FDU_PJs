@@ -1,0 +1,39 @@
+experiment_name: strong_aug
+experiment_dir: experiments/strong_aug
+seed: 42
+task: classification
+
+data:
+  data_dir: train_data_update_03-31_v2/train
+  val_split: 0.1
+  invert: true
+
+model:
+  num_classes: 12
+  downsample_mode: maxpool
+  use_se: false
+  dropout: 0.4
+
+augment:
+  shift: 3 # 更大平移扰动
+  random_erasing: true
+  random_erasing_p: 0.3
+  random_erasing_scale: [0.02, 0.15]
+  affine: false # 若安装 torchvision 可设为 true
+  mixup_alpha: 0.2 # Mixup alpha
+
+train:
+  optimizer: adamw
+  lr: 1.0e-3
+  weight_decay: 5.0e-5
+  batch_size: 64
+  epochs: 150
+  label_smoothing: 0.0
+  use_ema: false
+  lr_schedule:
+    enabled: true
+    type: cosine
+    lr_min: 1.0e-5
+  early_stopping:
+    enabled: true
+    patience: 30

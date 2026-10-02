@@ -1,0 +1,617 @@
+@startuml BoardGameClassDiagram
+' filepath: d:\project\vscode\java_lab\pj\docs\class-diagram.puml
+
+!theme plain
+skinparam backgroundColor #FFFFFF
+skinparam handwritten false
+skinparam shadowing false
+skinparam defaultFontName "思源黑体 CN", "Source Han Sans CN", "Noto Sans CJK SC", "Microsoft YaHei", sans-serif
+skinparam defaultFontSize 11
+skinparam packageFontSize 16  // 将包标题字体放大
+skinparam classFontSize 10
+skinparam titleFontSize 18    // 稍微增大主标题字体以匹配
+skinparam packageStyle rectangle
+skinparam roundCorner 5
+skinparam linetype ortho
+
+' 彩色包样式配置 - 加粗边框 (保持不变)
+skinparam package {
+    BackgroundColor<<Domain>> #E8F5E8
+    BorderColor<<Domain>> #2E7D32
+    BorderThickness<<Domain>> 3
+    FontColor<<Domain>> #1B5E20
+    FontStyle<<Domain>> bold
+    
+    BackgroundColor<<Game>> #E3F2FD
+    BorderColor<<Game>> #1565C0
+    BorderThickness<<Game>> 3
+    FontColor<<Game>> #0D47A1
+    FontStyle<<Game>> bold
+    
+    BackgroundColor<<GUI>> #FFF3E0
+    BorderColor<<GUI>> #E65100
+    BorderThickness<<GUI>> 3
+    FontColor<<GUI>> #BF360C
+    FontStyle<<GUI>> bold
+    
+    BackgroundColor<<Console>> #F3E5F5
+    BorderColor<<Console>> #6A1B9A
+    BorderThickness<<Console>> 3
+    FontColor<<Console>> #4A148C
+    FontStyle<<Console>> bold
+    
+    BackgroundColor<<SubPackage>> #F8F9FA
+    BorderColor<<SubPackage>> #495057
+    BorderThickness<<SubPackage>> 2
+    FontColor<<SubPackage>> #212529
+    FontStyle<<SubPackage>> bold
+}
+
+' 彩色类样式配置 (保持不变)
+skinparam class {
+    BackgroundColor #F8F9FA
+    BorderColor #6C757D
+    ArrowColor #495057
+    AttributeFontColor #000000
+    FontColor #000000
+    FontStyle bold
+}
+
+skinparam enum {
+    BackgroundColor #FFE4CC
+    BorderColor #FF8C00
+    FontColor #000000
+    FontStyle bold
+}
+
+skinparam interface {
+    BackgroundColor #E6E6FA
+    BorderColor #6A5ACD
+    FontColor #000000
+    FontStyle bold
+}
+
+skinparam abstract {
+    BackgroundColor #F0F8FF
+    BorderColor #4682B4
+    FontColor #000000
+    FontStyle bold
+}
+
+skinparam note {
+    BackgroundColor #FFFACD
+    BorderColor #DAA520
+    FontColor #B8860B
+    FontStyle bold
+}
+
+title <color:#2F2F2F><size:20><b>棋类游戏系统 - UML静态类图</b></size></color> // 稍微增大主标题字体
+
+' === 领域模型层 ===
+package "🎯 domain.board" <<Domain>> {
+    
+    enum PieceColor {
+        <color:#D2691E><b>BLACK</b></color>
+        <color:#D2691E><b>WHITE</b></color>
+        <color:#D2691E><b>BARRIER</b></color>
+        <color:#D2691E><b>BOMB_CRATER</b></color>
+        --
+        <color:#2E7D32><b>+ oppositeColor(): PieceColor</b></color>
+        <color:#2E7D32><b>+ allColors(): PieceColor[]</b></color>
+        <color:#2E7D32><b>+ toString(): String</b></color>
+    }
+    
+    enum Direction {
+        <color:#D2691E><b>UP, DOWN, LEFT, RIGHT</b></color>
+        <color:#D2691E><b>UP_LEFT, UP_RIGHT</b></color>
+        <color:#D2691E><b>DOWN_LEFT, DOWN_RIGHT</b></color>
+        --
+        <color:#8B0000><b>- dx: int</b></color>
+        <color:#8B0000><b>- dy: int</b></color>
+        --
+        <color:#2E7D32><b>+ getDx(): int</b></color>
+        <color:#2E7D32><b>+ getDy(): int</b></color>
+        <color:#2E7D32><b>+ getAllDirections(): Direction[]</b></color>
+        <color:#2E7D32><b>+ getOppositeDirections(): Direction[][]</b></color>
+    }
+    
+    class Board {
+        <color:#8B0000><b>- size: int</b></color>
+        <color:#8B0000><b>- grid: PieceColor[][]</b></color>
+        --
+        <color:#2E7D32><b>+ Board(int)</b></color>
+        <color:#2E7D32><b>+ Board(PieceColor[][])</b></color>
+        <color:#2E7D32><b>+ placePiece(Location, PieceColor): void</b></color>
+        <color:#2E7D32><b>+ replacePiece(Location, PieceColor): void</b></color>
+        <color:#2E7D32><b>+ getPiece(Location): PieceColor</b></color>
+        <color:#2E7D32><b>+ getPiece(int, int): PieceColor</b></color>
+        <color:#2E7D32><b>+ isValidLocation(Location): boolean</b></color>
+        <color:#2E7D32><b>+ isValidPlacement(Location): boolean</b></color>
+        <color:#2E7D32><b>+ getLine(Location, Direction): List<Piece></b></color>
+        <color:#2E7D32><b>+ getAll(boolean): Piece[]</b></color>
+        <color:#2E7D32><b>+ getPieceCount(PieceColor): int</b></color>
+        <color:#2E7D32><b>+ clear(): void</b></color>
+        <color:#2E7D32><b>+ getSize(): int</b></color>
+    }
+    
+    class Location {
+        <color:#8B0000><b>- x: int</b></color>
+        <color:#8B0000><b>- y: int</b></color>
+        --
+        <color:#2E7D32><b>+ of(int, int): Location {static}</b></color>
+        <color:#2E7D32><b>+ at(Direction): Location</b></color>
+        <color:#2E7D32><b>+ getX(): int</b></color>
+        <color:#2E7D32><b>+ getY(): int</b></color>
+        <color:#2E7D32><b>+ equals(Object): boolean</b></color>
+        <color:#2E7D32><b>+ hashCode(): int</b></color>
+        <color:#2E7D32><b>+ toString(): String</b></color>
+    }
+    
+    class Piece {
+        <color:#8B0000><b>- location: Location</b></color>
+        <color:#8B0000><b>- color: PieceColor</b></color>
+        --
+        <color:#2E7D32><b>+ Piece(Location, PieceColor)</b></color>
+        <color:#2E7D32><b>+ Piece(int, int, PieceColor)</b></color>
+        <color:#2E7D32><b>+ getLocation(): Location</b></color>
+        <color:#2E7D32><b>+ getColor(): PieceColor</b></color>
+        <color:#2E7D32><b>+ isOccupied(): boolean</b></color>
+    }
+    
+    class BoardException {
+        <color:#2E7D32><b>+ BoardException(String)</b></color>
+    }
+}
+
+package "🎮 domain.game" <<Game>> {
+    
+    interface Game <<interface>> {
+        <color:#1565C0><b>+ getGameType(): String</b></color>
+        <color:#1565C0><b>+ isOver(): boolean</b></color>
+        <color:#1565C0><b>+ getWinner(): PieceColor</b></color>
+        <color:#1565C0><b>+ getCurrentPlayer(): PieceColor</b></color>
+        <color:#1565C0><b>+ placePiece(Location): boolean</b></color>
+        <color:#1565C0><b>+ placePiece(int, int): boolean</b></color>
+        <color:#1565C0><b>+ getBoard(): Board</b></color>
+        <color:#1565C0><b>+ getSupportedActions(): List<String></b></color>
+        <color:#1565C0><b>+ executeAction(String, Object...): boolean</b></color>
+        <color:#1565C0><b>+ getAdditionalAttributes(): Map<String, Serializable></b></color>
+        <color:#1565C0><b>+ restoreAdditionalAttributes(Map): void</b></color>
+        <color:#1565C0><b>+ getPlayerScore(PieceColor): Integer</b></color>
+        <color:#1565C0><b>+ getPlayerBombs(PieceColor): Integer</b></color>
+        <color:#1565C0><b>+ getCurrentRound(): Integer</b></color>
+        <color:#1565C0><b>+ canCurrentPlayerPass(): boolean</b></color>
+        <color:#1565C0><b>+ canCurrentPlayerUseBomb(): boolean</b></color>
+        <color:#1565C0><b>+ getCurrentPlayerValidMoves(): List<Location></b></color>
+    }
+    
+    class PeaceGame {
+        <color:#8B0000><b>- board: Board</b></color>
+        <color:#8B0000><b>- finished: boolean</b></color>
+        <color:#8B0000><b>- currentPieceColor: PieceColor</b></color>
+        --
+        <color:#1565C0><b>+ PeaceGame()</b></color>
+        <color:#1565C0><b>+ getGameType(): String</b></color>
+        <color:#1565C0><b>+ placePiece(Location): boolean</b></color>
+        <color:#1565C0><b>+ getCurrentPlayer(): PieceColor</b></color>
+        <color:#1565C0><b>+ isOver(): boolean</b></color>
+        <color:#1565C0><b>+ getWinner(): PieceColor</b></color>
+        <color:#1565C0><b>+ getBoard(): Board</b></color>
+    }
+    
+    class ReversiGame {
+        <color:#8B0000><b>- board: Board</b></color>
+        <color:#8B0000><b>- finished: boolean</b></color>
+        <color:#8B0000><b>- currentPieceColor: PieceColor</b></color>
+        --
+        <color:#1565C0><b>+ ReversiGame()</b></color>
+        <color:#1565C0><b>+ getGameType(): String</b></color>
+        <color:#1565C0><b>+ placePiece(Location): boolean</b></color>
+        <color:#1565C0><b>+ getAllValidLocation(PieceColor): List<Location></b></color>
+        <color:#1565C0><b>+ executeAction(String, Object...): boolean</b></color>
+        <color:#1565C0><b>+ canCurrentPlayerPass(): boolean</b></color>
+        <color:#1565C0><b>+ getCurrentPlayerValidMoves(): List<Location></b></color>
+        <color:#1565C0><b>+ getPlayerScore(PieceColor): Integer</b></color>
+        <color:#8B0000><b>- flipPieces(List<Piece>): void</b></color>
+        <color:#8B0000><b>- isValidPlace(Location, PieceColor): boolean</b></color>
+        <color:#8B0000><b>- checkFinished(): boolean</b></color>
+    }
+    
+    class GomokuGame {
+        <color:#8B0000><b>- board: Board</b></color>
+        <color:#8B0000><b>- finished: boolean</b></color>
+        <color:#8B0000><b>- winner: PieceColor</b></color>
+        <color:#8B0000><b>- currentPieceColor: PieceColor</b></color>
+        <color:#8B0000><b>- blackBombs: int</b></color>
+        <color:#8B0000><b>- whiteBombs: int</b></color>
+        <color:#8B0000><b>- roundCount: int</b></color>
+        --
+        <color:#1565C0><b>+ GomokuGame()</b></color>
+        <color:#1565C0><b>+ getGameType(): String</b></color>
+        <color:#1565C0><b>+ placePiece(Location): boolean</b></color>
+        <color:#1565C0><b>+ useBomb(Location): boolean</b></color>
+        <color:#1565C0><b>+ executeAction(String, Object...): boolean</b></color>
+        <color:#1565C0><b>+ getPlayerBombs(PieceColor): Integer</b></color>
+        <color:#1565C0><b>+ getCurrentRound(): Integer</b></color>
+        <color:#1565C0><b>+ canCurrentPlayerUseBomb(): boolean</b></color>
+        <color:#1565C0><b>+ getAdditionalAttributes(): Map<String, Serializable></b></color>
+        <color:#1565C0><b>+ restoreAdditionalAttributes(Map): void</b></color>
+        <color:#1565C0><b>+ getCurrentPlayerBombs(): int</b></color>
+        <color:#8B0000><b>- checkWin(Location, PieceColor): boolean</b></color>
+        <color:#8B0000><b>- countHead(PieceColor, List<Piece>): int</b></color>
+    }
+    
+    class GameFactory {
+        <color:#1565C0><b>+ createGame(String): Game {static}</b></color>
+        <color:#1565C0><b>+ getSupportedGameTypes(): Set<String> {static}</b></color>
+        <color:#1565C0><b>+ getDisplayName(String): String {static}</b></color>
+    }
+    
+    class GameException {
+        <color:#1565C0><b>+ GameException(String)</b></color>
+    }
+}
+
+' === GUI表现层 ===
+package "🖥️ gui" <<GUI>> {
+    
+    package "📱 views" <<SubPackage>> {
+        class BoardView {
+            <color:#8B0000><b>- canvas: Canvas</b></color>
+            <color:#8B0000><b>- board: Board</b></color>
+            <color:#8B0000><b>- cellSize: double</b></color>
+            <color:#8B0000><b>- cellClickHandler: BiConsumer<Integer, Integer></b></color>
+            <color:#8B0000><b>- highlightedCells: List<Location></b></color>
+            <color:#8B0000><b>- bombMode: boolean</b></color>
+            --
+            <color:#E65100><b>+ BoardView()</b></color>
+            <color:#E65100><b>+ updateBoard(Board): void</b></color>
+            <color:#E65100><b>+ setOnCellClicked(BiConsumer): void</b></color>
+            <color:#E65100><b>+ highlightValidMoves(List<Location>): void</b></color>
+            <color:#E65100><b>+ clearHighlights(): void</b></color>
+            <color:#E65100><b>+ setBombMode(boolean): void</b></color>
+            <color:#E65100><b>+ isBombMode(): boolean</b></color>
+            <color:#8B0000><b>- handleMouseClick(MouseEvent): void</b></color>
+            <color:#8B0000><b>- getLocationFromClick(double, double): Location</b></color>
+            <color:#8B0000><b>- redraw(): void</b></color>
+            <color:#8B0000><b>- drawBoard(GraphicsContext): void</b></color>
+            <color:#8B0000><b>- drawLabels(GraphicsContext): void</b></color>
+            <color:#8B0000><b>- drawHighlights(GraphicsContext): void</b></color>
+            <color:#8B0000><b>- drawPieces(GraphicsContext): void</b></color>
+            <color:#8B0000><b>- drawPiece(GraphicsContext, int, int, PieceColor, double): void</b></color>
+            <color:#8B0000><b>- drawExplosionEffect(GraphicsContext, double, double, double): void</b></color>
+        }
+        
+        class GameListView {
+            <color:#8B0000><b>- listChangeListener: InvalidationListener</b></color>
+            --
+            <color:#E65100><b>+ GameListView()</b></color>
+            <color:#8B0000><b>- updateListViewHeight(): void</b></color>
+        }
+    }
+    
+    package "🎛️ controllers" <<SubPackage>> {
+        class MainController {
+            <color:#8B0000><b>- mainPane: BorderPane</b></color>
+            <color:#8B0000><b>- boardView: BoardView</b></color>
+            <color:#8B0000><b>- playerInfoPanel: VBox</b></color>
+            <color:#8B0000><b>- player1Label: Label</b></color>
+            <color:#8B0000><b>- player2Label: Label</b></color>
+            <color:#8B0000><b>- currentRoundLabel: Label</b></color>
+            <color:#8B0000><b>- player1BombsLabel: Label</b></color>
+            <color:#8B0000><b>- player2BombsLabel: Label</b></color>
+            <color:#8B0000><b>- gameStatusLabel: Label</b></color>
+            <color:#8B0000><b>- currentGameLabel: Label</b></color>
+            <color:#8B0000><b>- gameListView: GameListView</b></color>
+            <color:#8B0000><b>- gameResultLabel: Label</b></color>
+            <color:#8B0000><b>- gameSession: GameSession</b></color>
+            <color:#8B0000><b>- playbackExecutor: ScheduledExecutorService</b></color>
+            --
+            <color:#E65100><b>+ initialize(): void</b></color>
+            <color:#E65100><b>+ getGameSession(): GameSession</b></color>
+            <color:#8B0000><b>- initializeGameSession(): void</b></color>
+            <color:#8B0000><b>- initializeUI(): void</b></color>
+            <color:#8B0000><b>- initializeEventHandlers(): void</b></color>
+            <color:#8B0000><b>- handleBoardClick(int, int): void</b></color>
+            <color:#8B0000><b>- switchGame(int): void</b></color>
+            <color:#8B0000><b>- createNewGame(String): void</b></color>
+            <color:#8B0000><b>- executeGameAction(String): void</b></color>
+            <color:#8B0000><b>- updateUI(): void</b></color>
+            <color:#8B0000><b>- updateGameResult(Game): void</b></color>
+            <color:#8B0000><b>- updateSpecialGameInfo(Game): void</b></color>
+            <color:#8B0000><b>- updateButtonStatus(Game): void</b></color>
+            <color:#8B0000><b>- openPlaybackFile(): void</b></color>
+            <color:#8B0000><b>- startPlayback(String): void</b></color>
+            <color:#8B0000><b>- processPlaybackCommand(String): void</b></color>
+            <color:#8B0000><b>- quitApplication(): void</b></color>
+            <color:#8B0000><b>- showError(String): void</b></color>
+        }
+    }
+    
+    package "🗃️ models" <<SubPackage>> {
+        class GameSession {
+            <color:#8B0000><b>- player1Name: String</b></color>
+            <color:#8B0000><b>- player2Name: String</b></color>
+            <color:#8B0000><b>- games: ObservableList<Game></b></color>
+            <color:#8B0000><b>- currentGameIndex: IntegerProperty</b></color>
+            --
+            <color:#E65100><b>+ GameSession(String, String)</b></color>
+            <color:#E65100><b>+ GameSession(String, String, boolean)</b></color>
+            <color:#E65100><b>+ getPlayer1Name(): String</b></color>
+            <color:#E65100><b>+ getPlayer2Name(): String</b></color>
+            <color:#E65100><b>+ getPlayerName(PieceColor): String</b></color>
+            <color:#E65100><b>+ getGames(): ObservableList<Game></b></color>
+            <color:#E65100><b>+ getCurrentGame(): Game</b></color>
+            <color:#E65100><b>+ getCurrentGameIndex(): int</b></color>
+            <color:#E65100><b>+ currentGameIndexProperty(): IntegerProperty</b></color>
+            <color:#E65100><b>+ setCurrentGameIndex(int): void</b></color>
+            <color:#E65100><b>+ addGame(Game): void</b></color>
+            <color:#E65100><b>+ removeGame(int): boolean</b></color>
+            <color:#8B0000><b>- initializeDefaultGames(): void</b></color>
+        }
+        
+        class GameStateManager {
+            <color:#E65100><b>+ saveGameState(GameSession): void {static}</b></color>
+            <color:#E65100><b>+ loadGameState(): GameSession {static}</b></color>
+            <color:#8B0000><b>- convertToGameState(GameSession): GameState {static}</b></color>
+            <color:#8B0000><b>- convertFromGameState(GameState): GameSession {static}</b></color>
+            <color:#8B0000><b>- createGameFromSerializable(SerializableGame): Game {static}</b></color>
+            <color:#8B0000><b>- setPrivateField(Object, String, Object): void {static}</b></color>
+        }
+        
+        class GameState {
+            <color:#8B0000><b>- player1Name: String</b></color>
+            <color:#8B0000><b>- player2Name: String</b></color>
+            <color:#8B0000><b>- games: List<SerializableGame></b></color>
+            <color:#8B0000><b>- currentGameIndex: int</b></color>
+            --
+            <color:#E65100><b>+ GameState()</b></color>
+            <color:#E65100><b>+ GameState(String, String, List, int)</b></color>
+        }
+        
+        class SerializableGame {
+            <color:#8B0000><b>- gameType: String</b></color>
+            <color:#8B0000><b>- boardState: PieceColor[][]</b></color>
+            <color:#8B0000><b>- boardSize: int</b></color>
+            <color:#8B0000><b>- currentPlayer: PieceColor</b></color>
+            <color:#8B0000><b>- finished: boolean</b></color>
+            <color:#8B0000><b>- winner: PieceColor</b></color>
+            <color:#8B0000><b>- additionalAttributes: Map<String, Serializable></b></color>
+            --
+            <color:#E65100><b>+ SerializableGame()</b></color>
+        }
+    }
+    
+    class BoardGameApp {
+        <color:#E65100><b>+ start(Stage): void</b></color>
+        <color:#E65100><b>+ main(String[]): void {static}</b></color>
+    }
+}
+
+' === 控制台表现层 ===
+package "💻 console" <<Console>> {
+    
+    interface Screen <<interface>> {
+        <color:#6A1B9A><b>+ print(int, int, char): void</b></color>
+        <color:#6A1B9A><b>+ print(int, int, String): void</b></color>
+        <color:#6A1B9A><b>+ outputToConsole(): void</b></color>
+    }
+    
+    class RawScreen {
+        <color:#8B0000><b>- rows: int</b></color>
+        <color:#8B0000><b>- cols: int</b></color>
+        <color:#8B0000><b>- buffer: char[][]</b></color>
+        <color:#8B0000><b>- maxRow: int</b></color>
+        <color:#8B0000><b>- maxCol: int</b></color>
+        --
+        <color:#6A1B9A><b>+ RawScreen(int, int)</b></color>
+        <color:#6A1B9A><b>+ print(int, int, char): void</b></color>
+        <color:#6A1B9A><b>+ print(int, int, String): void</b></color>
+        <color:#6A1B9A><b>+ clear(): void</b></color>
+        <color:#6A1B9A><b>+ outputToConsole(): void</b></color>
+        <color:#6A1B9A><b>+ offset(int, int): Screen</b></color>
+        <color:#6A1B9A><b>+ offset(Location): Screen</b></color>
+        <color:#8B0000><b>- ensureCapacity(int, int): void</b></color>
+    }
+    
+    class OffsetScreen {
+        <color:#8B0000><b>- baseScreen: Screen</b></color>
+        <color:#8B0000><b>- rowOffset: int</b></color>
+        <color:#8B0000><b>- colOffset: int</b></color>
+        --
+        <color:#6A1B9A><b>+ OffsetScreen(Screen, int, int)</b></color>
+        <color:#6A1B9A><b>+ print(int, int, char): void</b></color>
+        <color:#6A1B9A><b>+ print(int, int, String): void</b></color>
+        <color:#6A1B9A><b>+ outputToConsole(): void</b></color>
+    }
+    
+    class BoardViewer {
+        <color:#8B0000><b>- board: Board</b></color>
+        --
+        <color:#6A1B9A><b>+ BoardViewer(Board)</b></color>
+        <color:#6A1B9A><b>+ display(Screen): void</b></color>
+    }
+    
+    package "🎮 playground" <<SubPackage>> {
+        class PlayGround {
+            <color:#8B0000><b>- player1: Player</b></color>
+            <color:#8B0000><b>- player2: Player</b></color>
+            <color:#8B0000><b>- games: List<GameViewer></b></color>
+            <color:#8B0000><b>- currentGameIndex: int</b></color>
+            <color:#8B0000><b>- lastErrorMessage: String</b></color>
+            --
+            <color:#6A1B9A><b>+ PlayGround(Player, Player)</b></color>
+            <color:#6A1B9A><b>+ executeCommand(String): void</b></color>
+            <color:#6A1B9A><b>+ createNewGame(String): void</b></color>
+            <color:#6A1B9A><b>+ switchToGame(int): void</b></color>
+            <color:#6A1B9A><b>+ getCurrentGameViewer(): GameViewer</b></color>
+            <color:#6A1B9A><b>+ getPlayer(PieceColor): Player</b></color>
+        }
+        
+        class PlayGroundViewer {
+            <color:#8B0000><b>- playGround: PlayGround</b></color>
+            --
+            <color:#6A1B9A><b>+ PlayGroundViewer(PlayGround)</b></color>
+            <color:#6A1B9A><b>+ run(): void</b></color>
+            <color:#6A1B9A><b>+ main(String[]): void {static}</b></color>
+            <color:#8B0000><b>- displayPlayground(): void</b></color>
+            <color:#8B0000><b>- displayGameList(Screen): void</b></color>
+            <color:#8B0000><b>- showPlayerStatus(Screen, GameViewer): void</b></color>
+            <color:#8B0000><b>- showGameStatus(Screen): void</b></color>
+            <color:#8B0000><b>- clearScreen(): void</b></color>
+        }
+        
+        class Player {
+            <color:#8B0000><b>- name: String</b></color>
+            <color:#8B0000><b>- pieceColor: PieceColor</b></color>
+            --
+            <color:#6A1B9A><b>+ Player(String, PieceColor)</b></color>
+            <color:#6A1B9A><b>+ getName(): String</b></color>
+            <color:#6A1B9A><b>+ getPieceColor(): PieceColor</b></color>
+        }
+    }
+    
+    package "🎯 gameview" <<SubPackage>> {
+        abstract class GameViewer {
+            <color:#8B0000><b># gameDesc: String</b></color>
+            --
+            <color:#6A1B9A><b>+ GameViewer(String)</b></color>
+            <color:#FF6F00><b>+ getGame(): Game {abstract}</b></color>
+            <color:#FF6F00><b>+ showBoard(Screen): void {abstract}</b></color>
+            <color:#FF6F00><b>+ getGameStatus(): String {abstract}</b></color>
+            <color:#FF6F00><b>+ getCommandList(PlayGround): List<Command> {abstract}</b></color>
+            <color:#FF6F00><b>+ getSize(): Location {abstract}</b></color>
+            <color:#6A1B9A><b>+ getPlayerStatus(int, Player, boolean, boolean): String</b></color>
+            <color:#6A1B9A><b>+ showCommandList(Screen, PlayGround): void</b></color>
+            <color:#6A1B9A><b>+ getGameType(): String</b></color>
+            <color:#8B0000><b># getCommonCommands(PlayGround): List<Command></b></color>
+        }
+        
+        class PeaceGameView {
+            <color:#8B0000><b>- game: PeaceGame</b></color>
+            <color:#8B0000><b>- boardConsole: BoardViewer</b></color>
+            --
+            <color:#6A1B9A><b>+ PeaceGameView(PeaceGame)</b></color>
+            <color:#6A1B9A><b>+ create(): PeaceGameView {static}</b></color>
+            <color:#6A1B9A><b>+ getGame(): Game</b></color>
+            <color:#6A1B9A><b>+ showBoard(Screen): void</b></color>
+            <color:#6A1B9A><b>+ getGameStatus(): String</b></color>
+            <color:#6A1B9A><b>+ getCommandList(PlayGround): List<Command></b></color>
+            <color:#6A1B9A><b>+ getSize(): Location</b></color>
+        }
+        
+        class ReversiGameView {
+            <color:#8B0000><b>- game: ReversiGame</b></color>
+            <color:#8B0000><b>- playGround: PlayGround</b></color>
+            --
+            <color:#6A1B9A><b>+ ReversiGameView(ReversiGame)</b></color>
+            <color:#6A1B9A><b>+ create(): ReversiGameView {static}</b></color>
+            <color:#6A1B9A><b>+ getGame(): ReversiGame</b></color>
+            <color:#6A1B9A><b>+ showBoard(Screen): void</b></color>
+            <color:#6A1B9A><b>+ getGameStatus(): String</b></color>
+            <color:#6A1B9A><b>+ getPlayerStatus(int, Player, boolean, boolean): String</b></color>
+            <color:#6A1B9A><b>+ getCommandList(PlayGround): List<Command></b></color>
+            <color:#6A1B9A><b>+ getSize(): Location</b></color>
+        }
+        
+        class GomokuGameView {
+            <color:#8B0000><b>- game: GomokuGame</b></color>
+            <color:#8B0000><b>- boardUI: BoardViewer</b></color>
+            <color:#8B0000><b>- playGround: PlayGround</b></color>
+            --
+            <color:#6A1B9A><b>+ GomokuGameView(GomokuGame)</b></color>
+            <color:#6A1B9A><b>+ create(): GomokuGameView {static}</b></color>
+            <color:#6A1B9A><b>+ getGame(): GomokuGame</b></color>
+            <color:#6A1B9A><b>+ showBoard(Screen): void</b></color>
+            <color:#6A1B9A><b>+ getGameStatus(): String</b></color>
+            <color:#6A1B9A><b>+ getPlayerStatus(int, Player, boolean, boolean): String</b></color>
+            <color:#6A1B9A><b>+ getCommandList(PlayGround): List<Command></b></color>
+            <color:#6A1B9A><b>+ getSize(): Location</b></color>
+        }
+    }
+    
+    package "⚡ command" <<SubPackage>> {
+        interface Command <<interface>> {
+            <color:#6A1B9A><b>+ canAccept(String): boolean</b></color>
+            <color:#6A1B9A><b>+ execute(String): void</b></color>
+            <color:#6A1B9A><b>+ prompt(): String</b></color>
+            <color:#6A1B9A><b>+ isEnabled(): boolean</b></color>
+        }
+        
+        class UseBombCommand {
+            <color:#8B0000><b>- game: GomokuGame</b></color>
+            <color:#8B0000><b>- session: PlayGround</b></color>
+            --
+            <color:#6A1B9A><b>+ UseBombCommand(GomokuGame, PlayGround)</b></color>
+            <color:#6A1B9A><b>+ execute(String): void</b></color>
+            <color:#6A1B9A><b>+ canAccept(String): boolean</b></color>
+            <color:#6A1B9A><b>+ prompt(): String</b></color>
+            <color:#6A1B9A><b>+ isEnabled(): boolean</b></color>
+        }
+        
+        abstract class PlacePieceCommand {
+            <color:#8B0000><b>- game: Game</b></color>
+            <color:#8B0000><b>- session: PlayGround</b></color>
+            --
+            <color:#6A1B9A><b>+ PlacePieceCommand(Game, PlayGround)</b></color>
+            <color:#6A1B9A><b>+ execute(String): void</b></color>
+            <color:#6A1B9A><b>+ canAccept(String): boolean</b></color>
+            <color:#6A1B9A><b>+ prompt(): String</b></color>
+            <color:#FF6F00><b>+ isEnabled(): boolean {abstract}</b></color>
+        }
+    }
+}
+
+' === UML标准关系定义（使用彩色符号）===
+
+' 实现关系 (彩色空心三角形 + 虚线)
+PeaceGame ..|> Game : <color:#4CAF50>◁</color>
+ReversiGame ..|> Game : <color:#4CAF50>◁</color>
+GomokuGame ..|> Game : <color:#4CAF50>◁</color>
+RawScreen ..|> Screen : <color:#9C27B0>◁</color>
+OffsetScreen ..|> Screen : <color:#9C27B0>◁</color>
+UseBombCommand ..|> Command : <color:#FF5722>◁</color>
+PlacePieceCommand ..|> Command : <color:#FF5722>◁</color>
+
+' 继承关系 (彩色空心三角形 + 实线)
+PeaceGameView --|> GameViewer : <color:#2196F3>△</color>
+ReversiGameView --|> GameViewer : <color:#2196F3>△</color>
+GomokuGameView --|> GameViewer : <color:#2196F3>△</color>
+
+' 组合关系 (彩色实心菱形)
+Board *-- PieceColor : <color:#E91E63>♦</color>
+Board *-- Location : <color:#E91E63>♦</color>
+Game *-- Board : <color:#E91E63>♦</color>
+Piece *-- Location : <color:#E91E63>♦</color>
+Piece *-- PieceColor : <color:#E91E63>♦</color>
+GameSession *-- Game : <color:#E91E63>♦</color>
+PlayGround *-- Player : <color:#E91E63>♦</color>
+PlayGround *-- GameViewer : <color:#E91E63>♦</color>
+
+' 聚合关系 (彩色空心菱形)
+MainController o-- GameSession : <color:#3F51B5>◇</color>
+MainController o-- BoardView : <color:#3F51B5>◇</color>
+MainController o-- GameListView : <color:#3F51B5>◇</color>
+GameViewer o-- Game : <color:#3F51B5>◇</color>
+BoardViewer o-- Board : <color:#3F51B5>◇</color>
+
+' 关联关系 (彩色箭头)
+GameFactory --> Game : <color:#FF9800>➤</color>
+GameStateManager --> GameSession : <color:#FF9800>➤</color>
+GameStateManager --> SerializableGame : <color:#FF9800>➤</color>
+GameStateManager --> GameState : <color:#FF9800>➤</color>
+UseBombCommand --> GomokuGame : <color:#FF9800>➤</color>
+UseBombCommand --> PlayGround : <color:#FF9800>➤</color>
+
+' 依赖关系 (彩色虚线箭头)
+MainController ..> GameFactory : <color:#607D8B>⇢</color>
+BoardGameApp ..> MainController : <color:#607D8B>⇢</color>
+PlayGroundViewer ..> PlayGround : <color:#607D8B>⇢</color>
+
+' 注释说明（使用彩色背景）
+note top of Game : <color:#4CAF50><back:#E8F5E8><size:12><b>Game接口</b>\n• 定义游戏通用契约\n• 支持多种游戏类型\n• 提供默认实现方法</back></color>
+note right of GameFactory : <color:#2196F3><back:#E3F2FD><size:12><b>工厂模式</b>\n• 统一游戏创建接口\n• 支持动态类型注册\n• 封装创建逻辑</back></color>
+note bottom of GameViewer : <color:#9C27B0><back:#F3E5F5><size:12><b>策略模式</b>\n• 抽象视图策略\n• 支持多种显示方式\n• 易于扩展新游戏</back></color>
+note left of Screen : <color:#FF5722><back:#FFF3E0><size:12><b>Screen接口</b>\n• 抽象显示层\n• 支持字符绘制\n• 控制台渲染抽象</back></color>
+
+@enduml

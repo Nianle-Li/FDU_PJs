@@ -1,0 +1,1171 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dungeon Explorer</title>
+
+    <!-- Bootstrap 5 CDN -->
+    <link href="static/css/bootstrap.min.css" rel="stylesheet" />
+
+    <!-- 像素字体（用于更像素化的节点标签） -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- vis-network CDN -->
+    <script src="static/js/vendor/vis-network.min.js"></script>
+
+    <style>
+      /* 全屏布局，无滚动 */
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        font-family: "Sitka Small Semibold", cursive;
+        font-size: 36px;
+      }
+
+      /* 顶部导航栏 - 固定高度 */
+      .navbar {
+        height: 96px;
+        padding: 16px 32px;
+        position: fixed; /* ✅ 固定定位 */
+        top: 0;
+        left: 0;
+        right: 0;
+        z-index: 1000;
+      }
+
+      .navbar-brand {
+        font-size: 56px;
+        font-weight: bold;
+      }
+
+      /* 主容器 - 绝对定位，留出顶部和底部空间 */
+      .main-container {
+        position: fixed; /* ✅ 固定定位 */
+        top: 96px; /* 导航栏高度 */
+        bottom: 105px; /* 底部信息栏高度 */
+        left: 0;
+        right: 0;
+        display: flex;
+        overflow: hidden;
+      }
+
+      /* 左侧面板 - 固定宽度，可滚动 */
+      .left-panel {
+        width: 720px;
+        padding: 16px;
+        overflow-y: auto;
+        background: repeating-linear-gradient(
+            90deg,
+            transparent 0px,
+            transparent 2px,
+            rgba(220, 180, 120, 0.13) 2px,
+            rgba(220, 180, 120, 0.13) 4px
+          ),
+          repeating-linear-gradient(
+            0deg,
+            transparent 0px,
+            transparent 2px,
+            rgba(220, 180, 120, 0.1) 2px,
+            rgba(220, 180, 120, 0.1) 4px
+          ),
+          linear-gradient(135deg, #7a5d3f 0%, #8b6a45 50%, #7a5d3f 100%);
+        background-size: 60px 60px, 60px 60px, 100% 100%;
+        border-right: 4px solid #d4a960;
+        height: 100%; /* ✅ 填满父容器高度 */
+        box-shadow: inset -8px 0 20px rgba(0, 0, 0, 0.4),
+          inset 0 0 40px rgba(180, 100, 20, 0.2);
+      }
+
+      /* 右侧地图区域 - 占满剩余空间 */
+      .right-panel {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center; /* ✅ 垂直居中 */
+        overflow: hidden;
+        padding: 20px;
+        height: 100%; /* ✅ 填满父容器高度 */
+        background: radial-gradient(
+            ellipse at 50% 30%,
+            rgba(244, 220, 170, 0.18) 0%,
+            transparent 55%
+          ),
+          linear-gradient(180deg, #5a4632 0%, #6b543f 50%, #5a4632 100%);
+      }
+
+      /* 地图容器 - 多层次地下城风格背景 */
+      #map-container {
+        width: 100%;
+        min-width: 400px;
+        height: calc(100% - 40px);
+        position: relative;
+        background-color: #2b241c;
+        background-image:
+                /* 第1层：火把光晕 - 温暖动感 */ radial-gradient(
+            ellipse 400px 300px at 15% 25%,
+            rgba(255, 210, 150, 0.18) 0%,
+            transparent 38%
+          ),
+          radial-gradient(
+            ellipse 350px 280px at 85% 70%,
+            rgba(255, 200, 130, 0.13) 0%,
+            transparent 42%
+          ),
+          radial-gradient(
+            ellipse 300px 250px at 50% 15%,
+            rgba(255, 225, 160, 0.12) 0%,
+            transparent 34%
+          ),
+          /* 第2层：地形岩石块 - 大尺度块状纹理（更浅） */
+            linear-gradient(
+              120deg,
+              transparent 0%,
+              transparent 40%,
+              rgba(150, 120, 90, 0.12) 41%,
+              transparent 45%,
+              transparent 100%
+            ),
+          linear-gradient(
+            60deg,
+            transparent 0%,
+            transparent 50%,
+            rgba(140, 110, 80, 0.1) 51%,
+            transparent 55%,
+            transparent 100%
+          ),
+          /* 第3层：细致裂缝 - 轻微淡化 */
+            repeating-linear-gradient(
+              45deg,
+              transparent 0,
+              transparent 80px,
+              rgba(0, 0, 0, 0.08) 80px,
+              rgba(0, 0, 0, 0.08) 82px
+            ),
+          repeating-linear-gradient(
+            -45deg,
+            transparent 0,
+            transparent 100px,
+            rgba(10, 5, 0, 0.06) 100px,
+            rgba(10, 5, 0, 0.06) 102px
+          ),
+          /* 第4层：石砖边界线 - 网格结构（更柔和） */
+            repeating-linear-gradient(
+              0deg,
+              transparent 0,
+              transparent 70px,
+              rgba(0, 0, 0, 0.08) 70px,
+              rgba(0, 0, 0, 0.08) 72px
+            ),
+          repeating-linear-gradient(
+            90deg,
+            transparent 0,
+            transparent 85px,
+            rgba(0, 0, 0, 0.07) 85px,
+            rgba(0, 0, 0, 0.07) 87px
+          ),
+          /* 第5层：雾气漂浮 - 更亮且更稀薄 */
+            radial-gradient(
+              ellipse at 35% 45%,
+              rgba(180, 150, 120, 0.1) 0%,
+              transparent 55%
+            ),
+          radial-gradient(
+            ellipse at 65% 55%,
+            rgba(170, 140, 110, 0.08) 0%,
+            transparent 50%
+          ),
+          /* 第6层：光线进入 - 顶部光源（更柔和） */
+            linear-gradient(
+              180deg,
+              rgba(210, 180, 140, 0.06) 0%,
+              transparent 20%,
+              transparent 80%,
+              rgba(40, 30, 20, 0.08) 100%
+            ),
+          /* 第7层：主体色调 - 浅棕铺垫 */
+            linear-gradient(
+              135deg,
+              #7a5d3f 0%,
+              #6e563b 25%,
+              #8b6a45 50%,
+              #6e563b 75%,
+              #7a5d3f 100%
+            );
+        background-size: 450px 350px, 400px 320px, 380px 300px,
+          /* 火把光 - 放大 */ 280% 280%, 300% 300%,
+          /* 岩石块 - 放大 */ 280px 280px, 320px 320px,
+          /* 裂缝 - 放大到280/320 */ 240px 280px, 280px 240px,
+          /* 石砖 - 放大到240/280 */ 280% 280%, 300% 300%,
+          /* 雾气 - 放大 */ 100% 100%, /* 光线 */ 600% 600%; /* 主体 - 放大 */
+        background-position: 15% 25%, 85% 70%, 50% 15%, /* 火把光 */ 0 0, 0 0,
+          /* 岩石块 */ 0 0, 0 0, /* 裂缝 */ 0 0, 0 0, /* 石砖 */ 35% 45%,
+          65% 55%, /* 雾气 */ 0 0, /* 光线 */ 0 0; /* 主体 */
+        animation: dungeonShift 80s ease-in-out infinite;
+        border-radius: 16px;
+        box-shadow: inset 0 0 80px rgba(0, 0, 0, 0.45),
+          inset 0 0 40px rgba(60, 40, 20, 0.25),
+          inset 3px 3px 20px rgba(0, 0, 0, 0.2),
+          inset -3px -3px 20px rgba(140, 110, 80, 0.06),
+          0 18px 40px rgba(0, 0, 0, 0.45), 0 0 0 4px rgba(120, 95, 70, 0.18);
+        border: 5px solid #7a5d3f;
+        overflow: hidden;
+      }
+
+      @keyframes dungeonShift {
+        0% {
+          background-position: 15% 25%, 85% 70%, 50% 15%, /* 火把光 */ 0 0, 0 0,
+            /* 岩石块 */ 0 0, 0 0, /* 裂缝 */ 0 0, 0 0, /* 石砖 */ 35% 45%,
+            65% 55%, /* 雾气 */ 0 0, /* 光线 */ 0% 0%; /* 主体 */
+        }
+        25% {
+          background-position: 16% 27%, 84% 68%, 50% 14%, /* 火把光闪烁 */ 2% 2%,
+            1% 1%, /* 岩石块微动 */ 0 0, 0 0, /* 裂缝 */ 0 0, 0 0,
+            /* 石砖 */ 36% 43%, 64% 57%, /* 雾气飘动 */ 0 0, /* 光线 */ 50% 50%; /* 主体渐变 */
+        }
+        50% {
+          background-position: 17% 28%, 83% 67%, 50% 16%, /* 火把光峰值 */ 3% 3%,
+            2% 2%, /* 岩石块继续 */ 0 0, 0 0, /* 裂缝 */ 0 0, 0 0,
+            /* 石砖 */ 37% 42%, 63% 58%, /* 雾气持续 */ 0 0,
+            /* 光线 */ 100% 100%; /* 主体峰值 */
+        }
+        75% {
+          background-position: 16% 26%, 84% 69%, 50% 15%, /* 火把光回归 */ 1% 1%,
+            2% 1%, /* 岩石块 */ 0 0, 0 0, /* 裂缝 */ 0 0, 0 0,
+            /* 石砖 */ 36% 44%, 64% 56%, /* 雾气 */ 0 0, /* 光线 */ 50% 50%; /* 主体 */
+        }
+        100% {
+          background-position: 15% 25%, 85% 70%, 50% 15%, /* 火把光 */ 0 0, 0 0,
+            /* 岩石块 */ 0 0, 0 0, /* 裂缝 */ 0 0, 0 0, /* 石砖 */ 35% 45%,
+            65% 55%, /* 雾气 */ 0 0, /* 光线 */ 0% 0%; /* 主体 */
+        }
+      }
+
+      /* vis-network 填充容器 */
+      #map-container > div {
+        position: absolute !important;
+        top: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        bottom: 0 !important;
+        width: 100% !important;
+        height: 100% !important;
+      }
+
+      /* 底部信息栏 - 固定在底部 */
+      .bottom-info {
+        position: fixed; /* ✅ 固定定位 */
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 105px;
+        padding: 20px 32px;
+        background: repeating-linear-gradient(
+            90deg,
+            transparent 0px,
+            transparent 4px,
+            rgba(220, 180, 120, 0.1) 4px,
+            rgba(220, 180, 120, 0.1) 8px
+          ),
+          linear-gradient(180deg, #8b6a45 0%, #9b7a50 100%);
+        background-size: 80px 100%, 100% 100%;
+        border-top: 4px solid #d4a960;
+        overflow-y: auto;
+        font-size: 40px;
+        z-index: 1000; /* ✅ 确保在最上层 */
+        color: #ffe8c0;
+        box-shadow: 0 -8px 20px rgba(0, 0, 0, 0.4),
+          inset 0 0 30px rgba(180, 100, 20, 0.2);
+      }
+
+      /* 卡片样式 */
+      .card {
+        margin-bottom: 10px;
+        border-radius: 8px;
+        font-size: 36px;
+        background: repeating-linear-gradient(
+            135deg,
+            transparent 0px,
+            transparent 2px,
+            rgba(180, 100, 20, 0.12) 2px,
+            rgba(180, 100, 20, 0.12) 4px
+          ),
+          linear-gradient(
+            135deg,
+            rgba(92, 66, 37, 0.9) 0%,
+            rgba(74, 53, 32, 0.95) 100%
+          );
+        background-size: 50px 50px, 100% 100%;
+        border: 3px solid #9b7545;
+        color: #ffe8c0;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4),
+          inset 0 0 20px rgba(180, 100, 20, 0.15);
+      }
+
+      .card-header {
+        padding: 10px 16px;
+        font-size: 36px;
+        font-weight: bold;
+        background: linear-gradient(135deg, #8b6d3f 0%, #a37d4d 100%);
+        border-bottom: 3px solid #d4a960;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.4);
+      }
+
+      .card-body {
+        padding: 12px 16px;
+      }
+
+      /* 按钮样式 */
+      .btn {
+        font-size: 36px;
+        padding: 18px 32px;
+        margin-bottom: 10px;
+        font-weight: bold;
+        border: 3px solid rgba(212, 169, 96, 0.65);
+        text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.4);
+      }
+
+      /* 快照卡片内的小按钮：避免全局 .btn 覆盖导致模态内按钮过大 */
+      .snapshot-card .btn {
+        font-size: 13px;
+        padding: 6px 8px;
+        margin-bottom: 0;
+      }
+      .snapshot-card .btn.btn-sm {
+        font-size: 12px;
+        padding: 4px 6px;
+      }
+
+      /* 信息项 */
+      .info-item {
+        padding: 16px 0;
+        font-size: 36px;
+        border-bottom: 2px solid rgba(212, 169, 96, 0.35);
+      }
+
+      .info-item:last-child {
+        border-bottom: none;
+      }
+
+      .info-item strong {
+        font-size: 36px;
+        font-weight: bold;
+      }
+
+      /* 图例 */
+      .legend-item {
+        padding: 14px 0;
+        font-size: 36px;
+        display: flex;
+        align-items: center;
+      }
+
+      .legend-color {
+        width: 72px;
+        height: 72px;
+        border-radius: 12px;
+        margin-right: 32px;
+        border: 2px solid #fff;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+      }
+
+      /* 徽章 */
+      .badge {
+        padding: 14px 28px;
+        font-size: 36px;
+        font-weight: bold;
+      }
+
+      /* 底部信息栏文字 */
+      .bottom-info strong {
+        font-size: 40px;
+        font-weight: bold;
+      }
+
+      /* ✅ 防止模态打开时 Bootstrap 修改 body 导致的布局偏移 */
+      body.modal-open {
+        overflow: hidden !important;
+        padding-right: 0 !important;
+      }
+
+      /* 滚动条美化 */
+      ::-webkit-scrollbar {
+        width: 10px;
+        height: 10px;
+      }
+
+      ::-webkit-scrollbar-track {
+        background: #f1f1f1;
+      }
+
+      ::-webkit-scrollbar-thumb {
+        background: #888;
+        border-radius: 5px;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- 顶部导航栏 - 固定在顶部 -->
+    <nav class="navbar navbar-dark bg-dark">
+      <div class="container-fluid">
+        <span class="navbar-brand">🏰 Dungeon Explorer</span>
+        <span class="text-white">
+          💪 Power:
+          <span
+            id="player-power-navbar"
+            class="badge bg-danger"
+            style="font-size: 40px; padding: 14px 28px"
+            >10</span
+          >
+          | 📍 Room:
+          <span
+            id="player-room-navbar"
+            class="badge bg-info"
+            style="font-size: 40px; padding: 14px 28px"
+            >0</span
+          >
+        </span>
+      </div>
+    </nav>
+
+    <!-- 主容器 - 位于导航栏和底部信息栏之间 -->
+    <div class="main-container">
+      <!-- 左侧控制面板 -->
+      <div class="left-panel">
+        <!-- 控制按钮 -->
+        <div class="card">
+          <div class="card-header bg-primary text-white">🎮 Controls</div>
+          <div class="card-body">
+            <button id="btn-new-map" class="btn btn-success w-100">
+              🗺️ Generate Map
+            </button>
+
+            <!-- Target Room Selection -->
+            <div
+              style="
+                margin: 10px 0;
+                padding: 10px;
+                background: rgba(212, 169, 96, 0.15);
+                border-radius: 6px;
+                border: 2px solid rgba(212, 169, 96, 0.3);
+              "
+            >
+              <label
+                style="
+                  font-size: 30px;
+                  font-weight: bold;
+                  color: #f4d58d;
+                  display: block;
+                  margin-bottom: 8px;
+                "
+                >🎯 Target Room</label
+              >
+              <div style="display: flex; gap: 12px; align-items: center">
+                <input
+                  type="number"
+                  id="target-room-input"
+                  placeholder="Room ID"
+                  min="0"
+                  style="
+                    flex: 1;
+                    font-size: 32px;
+                    padding: 12px;
+                    border: 2px solid #d4a960;
+                    border-radius: 6px;
+                    background: rgba(0, 0, 0, 0.3);
+                    color: #ffe8c0;
+                  "
+                />
+                <button
+                  id="btn-set-boss"
+                  class="btn btn-sm"
+                  style="
+                    font-size: 28px;
+                    padding: 12px 20px;
+                    background: linear-gradient(
+                      135deg,
+                      #cc6666 0%,
+                      #dd7777 100%
+                    );
+                    border: 2px solid #661111;
+                    color: white;
+                  "
+                >
+                  Boss Room
+                </button>
+              </div>
+              <div
+                id="target-room-status"
+                style="margin-top: 8px; font-size: 26px; color: #ffe8c0"
+              >
+                No target set
+              </div>
+            </div>
+
+            <button id="btn-shortest" class="btn btn-info w-100">
+              🎯 Shortest Path
+            </button>
+            <button id="btn-all-paths" class="btn btn-warning w-100">
+              📊 Rank Paths
+            </button>
+
+            <hr
+              style="border-color: rgba(255, 255, 255, 0.2); margin: 10px 0"
+            />
+
+            <!-- Game Control Buttons -->
+            <button id="btn-reset-game" class="btn btn-danger w-100">
+              🔄 Reset Game
+            </button>
+            <button
+              id="btn-snapshot"
+              class="btn btn-secondary w-100"
+              style="margin-top: 8px; margin-bottom: 8px"
+            >
+              📸 Snapshot
+            </button>
+            <button
+              id="btn-open-snapshots"
+              class="btn btn-outline-light w-100"
+              style="margin-bottom: 8px"
+            >
+              🗂️ Open Snapshots
+            </button>
+
+            <!-- Boss 自动移动（测试按钮已移除，默认在游戏中自动随机移动） -->
+          </div>
+        </div>
+
+        <!-- Shortest Path Panel -->
+        <div class="card">
+          <div class="card-header bg-success text-white">🎯 Shortest Path</div>
+          <div class="card-body">
+            <button id="lp-clear-paths" class="btn btn-light w-100">
+              🧹 Clear Highlights
+            </button>
+
+            <hr style="border-color: rgba(212, 169, 96, 0.2); margin: 8px 0" />
+
+            <div id="lp-shortest-container">
+              <h5 style="font-size: 30px; margin-bottom: 6px">📍 Path</h5>
+              <div id="lp-shortest" style="font-size: 30px; color: #ffe8c0">
+                Not generated
+              </div>
+              <button
+                id="lp-show-short-details"
+                class="btn btn-sm btn-outline-light mt-3"
+                style="font-size: 28px; display: none"
+              >
+                View Details
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Multiple Paths List -->
+        <div class="card">
+          <div class="card-header bg-secondary text-white">📊 Top Paths</div>
+          <div
+            class="card-body"
+            style="max-height: 400px; overflow-y: auto; font-size: 30px"
+          >
+            <div id="lp-paths-list">
+              <div class="text-muted">
+                No paths yet. Click "Shortest Path" or "Rank Paths".
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 战利品收藏 -->
+        <div class="card">
+          <div
+            class="card-header text-white"
+            style="
+              background: linear-gradient(135deg, #d4a960 0%, #f4d58d 100%);
+            "
+          >
+            🏆 Treasure Collection
+          </div>
+          <div class="card-body" style="max-height: 600px; overflow-y: auto">
+            <!-- Statistics -->
+            <div
+              id="treasure-stats"
+              style="
+                margin-bottom: 12px;
+                padding: 10px;
+                background: rgba(212, 169, 96, 0.15);
+                border-radius: 6px;
+                border: 2px solid rgba(212, 169, 96, 0.3);
+              "
+            >
+              <div
+                style="
+                  font-size: 30px;
+                  font-weight: bold;
+                  margin-bottom: 6px;
+                  color: #f4d58d;
+                "
+              >
+                📊 Statistics
+              </div>
+              <div style="font-size: 26px; color: #ffe8c0; line-height: 1.4">
+                <div>
+                  Total Count:
+                  <span
+                    id="treasure-total-count"
+                    style="color: #ffd700; font-weight: bold"
+                    >0</span
+                  >
+                </div>
+                <div>
+                  Total Value:
+                  <span
+                    id="treasure-total-value"
+                    style="color: #ffd700; font-weight: bold"
+                    >0</span
+                  >
+                </div>
+              </div>
+            </div>
+
+            <!-- 树状结构展示 -->
+            <div id="treasure-tree-container">
+              <div
+                class="text-muted"
+                style="font-size: 30px; text-align: center; padding: 20px"
+              >
+                No treasures collected yet<br />Explore the dungeon to find
+                chests!
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Adventure Log -->
+        <div class="card">
+          <div class="card-header bg-dark text-white">📜 Adventure Log</div>
+          <div class="card-body" style="max-height: 600px; overflow-y: auto">
+            <!-- Statistics -->
+            <div
+              id="log-stats"
+              style="
+                margin-bottom: 12px;
+                padding: 10px;
+                background: rgba(212, 169, 96, 0.15);
+                border-radius: 6px;
+                border: 2px solid rgba(212, 169, 96, 0.3);
+              "
+            >
+              <div
+                style="
+                  font-size: 30px;
+                  font-weight: bold;
+                  margin-bottom: 6px;
+                  color: #f4d58d;
+                "
+              >
+                📊 Stats
+              </div>
+              <div style="font-size: 26px; color: #ffe8c0; line-height: 1.4">
+                <div>
+                  Total Adventures:
+                  <span
+                    id="log-total-count"
+                    style="color: #ffd700; font-weight: bold"
+                    >0</span
+                  >
+                </div>
+                <div>
+                  Moves:
+                  <span
+                    id="log-total-moves"
+                    style="color: #ffd700; font-weight: bold"
+                    >0</span
+                  >
+                </div>
+                <div>
+                  Value:
+                  <span
+                    id="log-total-value"
+                    style="color: #ffd700; font-weight: bold"
+                    >0</span
+                  >
+                </div>
+              </div>
+            </div>
+
+            <!-- 日志列表 -->
+            <div id="log-container">
+              <div
+                class="text-muted"
+                style="font-size: 30px; text-align: center; padding: 20px"
+              >
+                No adventure records yet<br />Start exploring!
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 右侧地图区域 -->
+      <div class="right-panel">
+        <!-- 地图容器 - 正方形，居中显示 -->
+        <div id="map-container"></div>
+      </div>
+    </div>
+
+    <!-- 底部统计信息 - 固定在底部 -->
+    <div class="bottom-info" id="map-stats">
+      <p class="text-muted text-center mb-0">
+        Click "Generate Map" to start exploring
+      </p>
+    </div>
+
+    <!-- ==================== 战斗模态框 ==================== -->
+    <div
+      class="modal fade"
+      id="combatModal"
+      tabindex="-1"
+      aria-hidden="true"
+      data-bs-backdrop="static"
+      data-bs-keyboard="false"
+      style="font-size: 32px"
+    >
+      <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div
+          class="modal-content"
+          style="
+            background: linear-gradient(135deg, #3d2817 0%, #2b1810 100%);
+            color: #ffe8c0;
+            border: 4px solid #d4a960;
+          "
+        >
+          <div
+            class="modal-header"
+            style="
+              border-bottom: 3px solid #d4a960;
+              background: linear-gradient(135deg, #8b6d3f 0%, #6b5230 100%);
+            "
+          >
+            <h5
+              class="modal-title"
+              style="
+                font-size: 48px;
+                font-weight: bold;
+                text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+              "
+            >
+              ⚔️ In Combat...
+            </h5>
+          </div>
+          <div class="modal-body" style="padding: 32px; font-size: 36px">
+            <!-- 对战双方 -->
+            <div
+              style="
+                display: flex;
+                justify-content: space-around;
+                margin-bottom: 32px;
+              "
+            >
+              <!-- 玩家 -->
+              <div style="text-align: center; flex: 1">
+                <div style="font-size: 56px; margin-bottom: 16px">🛡️</div>
+                <div style="font-size: 32px; color: #87ceeb; font-weight: bold">
+                  Player
+                </div>
+                <div style="margin-top: 12px">
+                  <div style="color: #ffd700">
+                    Base Power: <span id="combat-player-base">0</span>
+                  </div>
+                  <div style="color: #ff6b6b; font-size: 48px; margin: 16px 0">
+                    🎲 <span id="combat-player-dice">?</span>
+                  </div>
+                  <div
+                    style="color: #00ff00; font-size: 42px; font-weight: bold"
+                  >
+                    Total: <span id="combat-player-total">0</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- VS -->
+              <div
+                style="
+                  display: flex;
+                  align-items: center;
+                  justify-content: center;
+                  padding: 0 24px;
+                "
+              >
+                <div
+                  style="
+                    font-size: 64px;
+                    font-weight: bold;
+                    color: #ff6b6b;
+                    text-shadow: 0 0 20px rgba(255, 107, 107, 0.5);
+                  "
+                >
+                  VS
+                </div>
+              </div>
+
+              <!-- 怪物 -->
+              <div style="text-align: center; flex: 1">
+                <div style="font-size: 56px; margin-bottom: 16px">👹</div>
+                <div
+                  style="font-size: 32px; color: #ff6b6b; font-weight: bold"
+                  id="combat-monster-name"
+                >
+                  怪物
+                </div>
+                <div style="margin-top: 12px">
+                  <div style="color: #ffd700">
+                    基础战力: <span id="combat-monster-base">0</span>
+                  </div>
+                  <div style="color: #ff6b6b; font-size: 48px; margin: 16px 0">
+                    🎲 <span id="combat-monster-dice">?</span>
+                  </div>
+                  <div
+                    style="color: #00ff00; font-size: 42px; font-weight: bold"
+                  >
+                    Total: <span id="combat-monster-total">0</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Combat log -->
+            <div
+              style="
+                margin-top: 32px;
+                padding: 20px;
+                background: rgba(0, 0, 0, 0.3);
+                border-radius: 8px;
+                border: 2px solid rgba(212, 169, 96, 0.3);
+                max-height: 300px;
+                overflow-y: auto;
+              "
+            >
+              <div
+                style="
+                  font-size: 32px;
+                  font-weight: bold;
+                  margin-bottom: 16px;
+                  color: #f4d58d;
+                "
+              >
+                📜 Combat Log
+              </div>
+              <div
+                id="combat-log"
+                style="font-size: 28px; line-height: 1.8; color: #ffe8c0"
+              >
+                <!-- 日志内容将由 JavaScript 填充 -->
+              </div>
+            </div>
+          </div>
+          <div
+            class="modal-footer"
+            style="
+              border-top: 3px solid #d4a960;
+              background: linear-gradient(135deg, #8b6d3f 0%, #6b5230 100%);
+            "
+          >
+            <button
+              type="button"
+              class="btn btn-primary"
+              id="combat-continue-btn"
+              style="font-size: 36px; display: none"
+              data-bs-dismiss="modal"
+            >
+              Continue →
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== Path details modal ==================== -->
+    <div
+      class="modal fade"
+      id="pathModal"
+      tabindex="-1"
+      aria-hidden="true"
+      data-bs-backdrop="true"
+      data-bs-keyboard="true"
+      style="font-size: 32px"
+    >
+      <div class="modal-dialog modal-xl modal-dialog-scrollable">
+        <div class="modal-content" style="background: #4a3520; color: #ffe8c0">
+          <div class="modal-header" style="border-bottom: 3px solid #d4a960">
+            <h5 class="modal-title" id="pathModalTitle" style="font-size: 44px">
+              📍 Path Details
+            </h5>
+            <button
+              type="button"
+              class="btn-close btn-close-white"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+          <div class="modal-body" id="pathModalBody" style="font-size: 32px">
+            <!-- 内容将由 JavaScript 动态生成 -->
+          </div>
+          <div class="modal-footer" style="border-top: 3px solid #d4a960">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-bs-dismiss="modal"
+              style="font-size: 32px"
+            >
+              关闭
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Game Over Modal -->
+    <div
+      class="modal fade"
+      id="gameOverModal"
+      tabindex="-1"
+      aria-hidden="true"
+      data-bs-backdrop="static"
+      data-bs-keyboard="false"
+      style="font-size: 32px"
+    >
+      <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div
+          class="modal-content"
+          style="background: #2d2416; color: #ffe8c0; border: 3px solid #d4a960"
+        >
+          <div
+            class="modal-header"
+            style="
+              border-bottom: 3px solid #d4a960;
+              justify-content: center;
+              position: relative;
+            "
+          >
+            <h3
+              class="modal-title"
+              id="gameOverTitle"
+              style="font-size: 52px; font-weight: bold; margin: 0"
+            >
+              <!-- Will be set by JavaScript -->
+            </h3>
+          </div>
+          <div class="modal-body text-center" style="padding: 30px">
+            <div
+              id="gameOverMessage"
+              style="font-size: 38px; margin-bottom: 25px; line-height: 1.5"
+            >
+              <!-- Will be set by JavaScript -->
+            </div>
+            <div
+              id="gameOverStats"
+              style="font-size: 30px; color: #f4d58d; margin-bottom: 30px"
+            >
+              <!-- Game statistics will be shown here -->
+            </div>
+            <div
+              style="
+                display: flex;
+                gap: 15px;
+                justify-content: center;
+                flex-wrap: wrap;
+              "
+            >
+              <button
+                id="btn-new-game"
+                class="btn btn-primary"
+                style="font-size: 32px; padding: 12px 30px; min-width: 200px"
+              >
+                🆕 New Game
+              </button>
+              <button
+                id="btn-reset-only"
+                class="btn btn-warning"
+                style="font-size: 32px; padding: 12px 30px; min-width: 200px"
+              >
+                🔄 Reset
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bootstrap JS (本地文件 - 需要用于模态框，必须在模块脚本前加载) -->
+    <script src="static/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Optional modal fragments -->
+    <!-- Combat choice modal -->
+    <!-- Injected below so custom modal is available to scripts -->
+    <!-- Begin combat modal -->
+
+    <!-- Snapshot Library Modal -->
+    <div class="modal fade" id="snapshotModal" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-xl modal-dialog-scrollable">
+        <div
+          class="modal-content"
+          style="background: #3d2817; color: #ffe8c0; border: 3px solid #d4a960"
+        >
+          <div class="modal-header">
+            <h5 class="modal-title">📸 Snapshots</h5>
+            <button
+              type="button"
+              class="btn-close btn-close-white"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+          <div class="modal-body" style="font-size: 16px">
+            <div id="snapshot-list" style="min-height: 120px">Loading...</div>
+          </div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-bs-dismiss="modal"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Snapshot Viewer Modal -->
+    <div
+      class="modal fade"
+      id="snapshotViewerModal"
+      tabindex="-1"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div
+          class="modal-content"
+          style="background: #3d2817; color: #ffe8c0; border: 3px solid #d4a960"
+        >
+          <div class="modal-header">
+            <h5 class="modal-title">Snapshot</h5>
+            <button
+              type="button"
+              class="btn-close btn-close-white"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+          <div class="modal-body text-center">
+            <img
+              id="snapshot-view-img"
+              src=""
+              style="max-width: 100%; height: auto; border-radius: 6px"
+            />
+            <div
+              id="snapshot-view-meta"
+              style="margin-top: 8px; font-size: 14px; color: #ffd700"
+            ></div>
+          </div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-bs-dismiss="modal"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div
+      class="modal fade"
+      id="combatChoiceModal"
+      tabindex="-1"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog modal-dialog-centered">
+        <div
+          class="modal-content"
+          style="background: #2d2416; color: #ffe8c0; border: 3px solid #d4a960"
+        >
+          <div class="modal-header">
+            <h5 class="modal-title">Encounter</h5>
+            <button
+              type="button"
+              class="btn-close btn-close-white"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+          <div class="modal-body text-center">
+            <p>
+              Monster Power: <strong id="combat-choice-monster-power">0</strong>
+            </p>
+            <p>Choose battle mode:</p>
+            <div
+              style="
+                display: flex;
+                gap: 12px;
+                justify-content: center;
+                margin-top: 12px;
+              "
+            >
+              <button
+                id="combat-choice-dice"
+                class="btn btn-primary"
+                style="font-size: 18px; padding: 12px 18px"
+              >
+                Dice Duel (Random)
+              </button>
+              <button
+                id="combat-choice-power"
+                class="btn btn-success"
+                style="font-size: 18px; padding: 12px 18px"
+              >
+                Power Only
+              </button>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button
+              id="combat-choice-cancel"
+              type="button"
+              class="btn btn-secondary"
+              data-bs-dismiss="modal"
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- End combat modal -->
+
+    <!-- ==================== 模块化脚本引入 ==================== -->
+    <!-- html2canvas for snapshot capture -->
+    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+
+    <!-- Snapshot module -->
+    <script type="module" src="static/js/snapshot.js"></script>
+
+    <!-- main module -->
+    <script type="module" src="static/js/main.js"></script>
+  </body>
+</html>

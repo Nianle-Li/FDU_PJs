@@ -1,0 +1,58 @@
+<!-- Combat choice modal (optional) -->
+<div class="modal fade" id="combatChoiceModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div
+      class="modal-content"
+      style="background: #2d2416; color: #ffe8c0; border: 3px solid #d4a960"
+    >
+      <div class="modal-header">
+        <h5 class="modal-title">Encounter</h5>
+        <button
+          type="button"
+          class="btn-close btn-close-white"
+          data-bs-dismiss="modal"
+          aria-label="Close"
+        ></button>
+      </div>
+      <div class="modal-body text-center">
+        <p>
+          Monster Power: <strong id="combat-choice-monster-power">0</strong>
+        </p>
+        <p>Choose battle mode:</p>
+        <div
+          style="
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            margin-top: 12px;
+          "
+        >
+          <button
+            id="combat-choice-dice"
+            class="btn btn-primary"
+            style="font-size: 18px; padding: 12px 18px"
+          >
+            Dice Duel (Random)
+          </button>
+          <button
+            id="combat-choice-power"
+            class="btn btn-success"
+            style="font-size: 18px; padding: 12px 18px"
+          >
+            Power Only
+          </button>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button
+          id="combat-choice-cancel"
+          type="button"
+          class="btn btn-secondary"
+          data-bs-dismiss="modal"
+        >
+          Cancel
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

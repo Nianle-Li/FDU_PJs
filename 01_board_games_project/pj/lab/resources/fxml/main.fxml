@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+<?import gui.views.BoardView?>
+<?import gui.views.GameListView?>
+
+<BorderPane fx:id="mainPane" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" 
+          fx:controller="gui.controllers.MainController">
+   <left>
+      <!-- 左侧棋盘区域 - 固定在左上角 -->
+      <AnchorPane>
+         <VBox spacing="10.0" minWidth="520.0" maxWidth="520.0" AnchorPane.topAnchor="0.0" AnchorPane.leftAnchor="0.0">
+            <padding>
+               <Insets top="10.0" right="10.0" bottom="10.0" left="10.0" />
+            </padding>
+            <children>
+               <BoardView fx:id="boardView" prefHeight="500.0" prefWidth="500.0" maxHeight="500.0" maxWidth="500.0" />
+               
+               <!-- 游戏结果显示区域 - 此 Label 用于显示游戏结果和炸弹提示 -->
+               <Label fx:id="gameResultLabel" text="" style="-fx-font-weight: bold; -fx-font-size: 18px;" visible="false" maxWidth="Infinity" alignment="CENTER" wrapText="true"/>
+            </children>
+         </VBox>
+      </AnchorPane>
+   </left>
+   
+   <center>
+      <!-- 右侧三列布局 - 使用HBox.hgrow确保均匀分布 -->
+      <HBox spacing="10.0" maxWidth="Infinity" fillHeight="true">
+         <padding>
+            <Insets top="10.0" right="10.0" bottom="10.0" left="10.0" />
+         </padding>
+         <children>
+            <!-- 第一列：游戏信息和选项 -->
+            <VBox spacing="15.0" HBox.hgrow="ALWAYS" minWidth="150.0" prefWidth="160.0" alignment="TOP_CENTER">
+               <!-- 新的组合VBox，包含游戏局数、玩家信息和游戏选项 -->
+               <VBox spacing="2.0" style="-fx-border-color: rgb(247, 245, 245); -fx-border-radius: 5; -fx-padding: 5;" alignment="CENTER">
+                  <Label fx:id="currentGameLabel" text="游戏1" maxWidth="Infinity" alignment="CENTER"/>
+                  <VBox fx:id="playerInfoPanel" spacing="5.0" alignment="CENTER">
+                     <Label fx:id="player1Label" text="玩家1: ●" />
+                     <Label fx:id="player2Label" text="玩家2: ○" />
+                     <Label fx:id="currentRoundLabel" text="当前回合: 1" visible="false" />
+                     <Label fx:id="player1BombsLabel" text="黑方炸弹: 2" visible="false" />
+                     <Label fx:id="player2BombsLabel" text="白方炸弹: 3" visible="false" />
+                     <Label fx:id="gameStatusLabel" text="游戏进行中" maxWidth="Infinity" alignment="CENTER" visible="false"/> <!-- 设置为不可见 -->
+                  </VBox>
+                  <!-- 游戏选项 VBox 移动到这里，移除边框和外边距，减少间距 -->
+                  <VBox spacing="3.0" alignment="CENTER">
+                     <Button fx:id="passButton" text="跳过本轮" prefWidth="130.0" maxWidth="130.0" />
+                     <Button fx:id="useBombButton" text="使用炸弹" prefWidth="130.0" maxWidth="130.0" />
+                     <Button fx:id="playbackButton" text="演示模式" prefWidth="130.0" maxWidth="130.0" />
+                     <Button fx:id="quitButton" text="退出游戏" prefWidth="130.0" maxWidth="130.0" />
+                  </VBox>
+               </VBox>
+            </VBox>
+            
+            <!-- 第二列：游戏列表 -->
+            <VBox spacing="5.0" HBox.hgrow="ALWAYS" minWidth="150.0" prefWidth="180.0" alignment="TOP_CENTER">
+               <Label text="游戏列表" style="-fx-font-weight: bold;" maxWidth="Infinity" alignment="CENTER"/>
+               <GameListView fx:id="gameListView" prefWidth="160.0" maxWidth="160.0" />
+            </VBox>
+            
+            <!-- 第三列：添加新游戏 -->
+            <VBox spacing="10.0" HBox.hgrow="ALWAYS" minWidth="150.0" prefWidth="180.0" alignment="TOP_CENTER">
+               <Label text="添加新游戏" style="-fx-font-weight: bold;" maxWidth="Infinity" alignment="CENTER"/>
+               <VBox spacing="10.0" style="-fx-border-color:rgb(247, 245, 245); -fx-border-radius: 5; -fx-padding: 5;" alignment="CENTER">
+                  <Button fx:id="newPeaceGameButton" text="和平棋" prefWidth="130.0" maxWidth="130.0" />
+                  <Button fx:id="newReversiGameButton" text="黑白棋" prefWidth="130.0" maxWidth="130.0" />
+                  <Button fx:id="newGomokuGameButton" text="五子棋" prefWidth="130.0" maxWidth="130.0" />
+               </VBox>
+            </VBox>
+         </children>
+      </HBox>
+   </center>
+</BorderPane>

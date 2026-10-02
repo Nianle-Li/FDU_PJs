@@ -1,0 +1,10 @@
+language=Chinese
+k_transition=0.1
+k_emission=0.5
+lowercase=True
+unk_threshold=2
+unk_weight=0.75
+use_constraint=False
+use_gazetteer=False
+gaz_alpha=1.5
+micro_f1=0.8928

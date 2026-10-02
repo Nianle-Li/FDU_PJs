@@ -1,0 +1,40 @@
+experiment_name: se_ema
+experiment_dir: experiments/se_ema
+seed: 42
+task: classification
+
+data:
+  data_dir: train_data_update_03-31_v2/train
+  val_split: 0.1
+  invert: true
+
+model:
+  num_classes: 12
+  downsample_mode: maxpool
+  use_se: true # 每个 ResBlock 末尾加 SEBlock
+  dropout: 0.3
+
+augment:
+  shift: 2
+  random_erasing: true
+  random_erasing_p: 0.2
+  random_erasing_scale: [0.02, 0.12]
+  affine: false
+  mixup_alpha: 0.0
+
+train:
+  optimizer: adamw
+  lr: 8.0e-4
+  weight_decay: 5.0e-5
+  batch_size: 64
+  epochs: 150
+  label_smoothing: 0.05
+  use_ema: true
+  ema_decay: 0.999
+  lr_schedule:
+    enabled: true
+    type: cosine
+    lr_min: 1.0e-5
+  early_stopping:
+    enabled: true
+    patience: 30

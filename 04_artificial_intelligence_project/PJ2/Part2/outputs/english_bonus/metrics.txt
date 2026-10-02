@@ -1,0 +1,19 @@
+Language: English
+Gold:     /users/sama/Artificial-Intelligence-PJ/PJ2/NER/English/validation.txt
+Pred:     outputs/english_bonus/val_pred.txt
+
+              precision    recall  f1-score   support
+
+       B-PER     0.9091    0.9175    0.9133      1842
+       I-PER     0.9507    0.9587    0.9547      1307
+       B-ORG     0.8917    0.8412    0.8657      1341
+       I-ORG     0.8570    0.8535    0.8552       751
+       B-LOC     0.9286    0.9352    0.9319      1837
+       I-LOC     0.9167    0.8560    0.8853       257
+      B-MISC     0.9298    0.8482    0.8871       922
+      I-MISC     0.9126    0.7543    0.8259       346
+
+   micro avg     0.9151    0.8942    0.9045      8603
+   macro avg     0.9120    0.8706    0.8899      8603
+weighted avg     0.9149    0.8942    0.9039      8603
+

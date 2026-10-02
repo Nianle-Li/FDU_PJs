@@ -1,0 +1,31 @@
+lang: en
+data_dir: ../NER/English
+output_dir: outputs/english_bert_v4
+
+# Round 5 - 英文 BERT 降低 LR 精细训练
+# 分析：
+#   v2 (patience=8) → F1=0.9491（当前最优）
+#   v3 (head_lr=5e-4, warmup=500, epochs=30) → F1=0.9489（基本持平）
+#   v3 loss 从 epoch16-30 仍在下降 (6171→6124)，但 F1 停滞
+#   说明高 LR 导致模型一直在收敛但不稳定
+#   v4：lr=1.5e-5 (更小，减少震荡) + head_lr=3e-4 + patience=15 + warmup=1000
+
+model:
+  encoder: bert
+  bert_model: bert-base-cased
+  dropout: 0.1
+  max_len: 512
+
+training:
+  batch_size: 32
+  epochs: 50
+  lr: 1.5e-5              # v2/v3 用 2e-5，适度降低减少后期震荡
+  head_lr: 3.0e-4         # v2 2e-4 偏小，v3 5e-4 偏大，取中间值
+  lr_scheduler: cosine
+  warmup_steps: 1000      # 更长 warmup，让 BERT 平稳进入微调
+  clip_grad: 1.0
+  weight_decay: 0.01
+  early_stopping_patience: 15
+
+crf:
+  use_constraint: true

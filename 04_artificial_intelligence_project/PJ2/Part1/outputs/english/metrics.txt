@@ -1,0 +1,10 @@
+language=English
+k_transition=0.5
+k_emission=0.05
+lowercase=False
+unk_threshold=1
+unk_weight=1.0
+use_constraint=True
+use_gazetteer=False
+gaz_alpha=1.5
+micro_f1=0.8465

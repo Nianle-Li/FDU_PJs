@@ -1,0 +1,82 @@
+.root {
+  -fx-font-family: "Times New Roman", "SimSun"; /* English/Numbers: Times New Roman, Chinese: SimSun */
+  -fx-font-size: 16px; /* Increased from 15px */
+  -fx-background-color: #f5f5f5;
+  -fx-font-weight: bold;
+}
+
+.button {
+  -fx-background-color: #4a86e8;
+  -fx-text-fill: white;
+  -fx-cursor: hand;
+  -fx-background-radius: 4px;
+}
+
+.button:hover {
+  -fx-background-color: #2c5bb4;
+}
+
+.button:pressed {
+  -fx-background-color: #1c3b84;
+}
+
+#passButton {
+  -fx-background-color: #f39c12;
+}
+
+#passButton:hover {
+  -fx-background-color: #d68910;
+}
+
+#useBombButton {
+  -fx-background-color: #e74c3c;
+}
+
+#useBombButton:hover {
+  -fx-background-color: #c0392b;
+}
+
+#quitButton {
+  -fx-background-color: #7f8c8d;
+}
+
+#quitButton:hover {
+  -fx-background-color: #636e72;
+}
+
+.text-area {
+  -fx-font-family: "Times New Roman", "SimSun"; /* Consistent font setting */
+  -fx-font-size: 15px; /* Increased from 14px */
+  -fx-font-weight: bold;
+}
+
+#gameStatusLabel {
+  -fx-font-size: 18px; /* Increased from 17px */
+}
+
+.list-view {
+  -fx-background-color: white;
+  -fx-border-color: #cccccc;
+  -fx-border-radius: 4px;
+}
+
+.list-cell:selected {
+  -fx-background-color: #4a86e8;
+  -fx-text-fill: white;
+}
+
+/* 盒子样式 */
+.box-container {
+  -fx-border-color: #cccccc;
+  -fx-border-radius: 5px;
+  -fx-padding: 10px;
+  -fx-background-color: white;
+}
+
+.current-player-highlight {
+  -fx-border-color: red;
+  -fx-border-width: 1px;
+  -fx-border-style: solid;
+  -fx-padding: 2px;
+  -fx-border-radius: 3px;
+}

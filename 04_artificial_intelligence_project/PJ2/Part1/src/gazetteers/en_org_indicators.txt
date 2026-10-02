@@ -1,0 +1,25 @@
+# ORG 相关词（公司后缀、机构关键词），全小写
+# 公司后缀
+inc corp corporation ltd limited co company group holdings enterprises industries
+services systems technologies international associates partners ventures capital
+financial solutions resources management development communications media
+networks global worldwide nationwide regional
+
+# 机构类
+association federation union party committee council ministry department bureau
+agency office center centre institute university college school hospital clinic
+foundation trust charity organization organisation authority commission board
+committee assembly parliament congress senate
+
+# 金融
+bank insurance fund investment securities exchange market trading
+
+# 体育组织
+fc united city town rovers wanderers athletic athletics
+
+# 媒体
+news times post herald tribune gazette journal review weekly daily
+
+# 政府/军事
+army navy force forces troops regiment brigade battalion division corps military
+police government federal national state provincial municipal

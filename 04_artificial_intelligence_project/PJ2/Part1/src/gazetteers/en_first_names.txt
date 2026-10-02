@@ -1,0 +1,40 @@
+# 常见英文名（男女），覆盖新闻语料中高频 PER 实体首字词
+# 全小写，匹配时 token.lower() 对比
+james john robert michael william david richard joseph thomas charles christopher
+daniel matthew anthony mark donald paul andrew kenneth jason kevin brian george
+timothy ronald edward jeffrey ryan jacob gary nicholas eric jonathan stephen larry
+justin scott brandon benjamin samuel gregory frank alexander patrick jack dennis
+jerry tyler aaron henry adam douglas nathan peter zachary kyle walter harold
+jeremy ethan carl arthur jesse dylan jordan billy albert willie alan austin
+vincent wayne roy ralph randy eugene louis russell bobby victor martin phillip
+todd craig sean philip chris johnny brad brett bruce calvin cameron chester clark
+clayton clifford clinton clyde cody cole corey dale damon darrell darren darryl
+dean eli elijah emmett erik fernando floyd francis francisco fred frederick gabriel
+gerald glenn grant greg harvey heath hugh hunter ian ivan jared jay jermaine
+joel jon jorge josh julian keith kelly kent kirk kurt lance leonard lloyd luke
+luther marco marcus mario marshall mason max maxwell melvin miles mitchell
+monroe morgan neil nelson noah norman oliver orlando oscar owen percy preston
+quentin randall reginald rex roland roman ruben rudy rufus salvador sebastian
+shane sidney simon spencer stanley sterling stuart ted terrence travis trent
+trevor troy tyrone ulysses vernon wade warren wesley whitney wilbur winston
+xavier yolanda
+
+mary patricia jennifer linda barbara elizabeth susan jessica sarah karen lisa
+nancy betty margaret sandra ashley dorothy kimberly emily donna michelle carol
+amanda melissa deborah stephanie rebecca sharon laura cynthia kathleen amy angela
+shirley anna brenda pamela emma nicole helen samantha katherine christine debra
+rachel carolyn janet catherine maria heather diane julie joyce victoria ruth
+virginia lauren kelly christina joan evelyn judith andrea hannah megan cheryl
+jacqueline martha madison teresa gloria sara janice ann kathryn abigail sophia
+frances jean alice judy isabella julia grace amber denise danielle marilyn
+beverly natalie diana brittany charlotte theresa kayla alexis tiffany bianca
+cassandra claire colleen crystal dawn deanna deidre dolores edna eleanor elise
+ellen elsie erica erin esther eva faith felicia gail gina glenda hazel ida irene
+jamie jana jane jasmine joanna josephine joy juanita june kate katelyn katie
+kelsey kim lana latoya leigh leslie lillie lindsay lindsey lois loretta lori
+lorraine louise lucinda lucy lydia lynn mabel marcia marie marina marjorie
+marlene marta maxine mindy miranda monica myra natasha nichole nina nora norma
+olivia pam pearl peggy penelope phyllis priscilla rachael raquel renee roberta
+robin rosa rose rosemary ruby sally shannon sherry sheryl stacy sue summer
+suzanne tamara tammy tanya tara tina traci tracy valerie vanessa vera vicki
+vickie vivian wanda wendy yolanda yvonne zelda irene
