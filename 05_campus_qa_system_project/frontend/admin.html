@@ -1,0 +1,378 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>复旦校园百事通 · 管理端</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body class="admin-shell">
+    <header class="topbar">
+      <div>
+        <h1>复旦校园百事通</h1>
+        <p>面向数据库课程的管理工作台——查询、浏览与维护同台一体</p>
+      </div>
+      <nav class="app-nav" aria-label="前端入口">
+        <a href="index.html">用户端</a>
+        <a class="is-active" href="admin.html">管理员端</a>
+      </nav>
+      <div id="health" class="status">连接中</div>
+    </header>
+
+    <main class="workspace">
+      <nav
+        class="tabs admin-section-tabs"
+        role="tablist"
+        aria-label="工作台板块"
+      >
+        <button
+          type="button"
+          class="tab is-active"
+          data-admin-view="query"
+          role="tab"
+          aria-pressed="true"
+        >
+          查询工作台
+        </button>
+        <button
+          type="button"
+          class="tab"
+          data-admin-view="browse"
+          role="tab"
+          aria-pressed="false"
+        >
+          数据浏览
+        </button>
+        <button
+          type="button"
+          class="tab"
+          data-admin-view="maintain"
+          role="tab"
+          aria-pressed="false"
+        >
+          数据维护
+        </button>
+      </nav>
+
+      <div
+        id="message"
+        class="toast-message"
+        role="status"
+        aria-live="polite"
+        aria-atomic="true"
+      ></div>
+
+      <section class="panel query-panel" data-admin-section="query">
+        <div class="panel-title query-title">
+          <div class="panel-title-text">
+            <h2>查询工作台</h2>
+            <span class="panel-sub"
+              >传统多条件检索与自然语言提问两种方式，随时切换</span
+            >
+          </div>
+          <div class="mode-switch" role="tablist" aria-label="查询模式">
+            <button
+              class="mode-button is-active"
+              type="button"
+              data-query-mode="traditional"
+            >
+              传统查询
+            </button>
+            <button class="mode-button" type="button" data-query-mode="natural">
+              自然语言查询
+            </button>
+          </div>
+        </div>
+
+        <div id="traditionalPane" class="query-pane">
+          <form id="traditionalQueryForm" class="traditional-form">
+            <label>
+              查询对象
+              <select id="traditionalEntity" name="entity">
+                <option value="campuses">校区</option>
+                <option value="buildings">建筑</option>
+                <option value="facilities">设施</option>
+                <option value="courses">课程</option>
+                <option value="activities">活动</option>
+              </select>
+            </label>
+            <div id="traditionalFields" class="field-grid"></div>
+            <div class="actions">
+              <button type="submit">查询</button>
+              <button
+                id="clearTraditionalBtn"
+                type="button"
+                class="secondary-button"
+              >
+                清空
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <div id="naturalPane" class="query-pane hidden">
+          <form id="nlQueryForm" class="nl-form">
+            <label>
+              问句
+              <textarea id="nlQuestion" name="question" rows="3" required>
+邯郸校区有哪些教学楼？</textarea
+              >
+            </label>
+            <label class="compact-label"
+              >用户 ID<input name="user_id" type="number" min="1" value="4"
+            /></label>
+            <div class="question-chips">
+              <button type="button" data-question="邯郸校区有哪些教学楼？">
+                校区建筑
+              </button>
+              <button type="button" data-question="第二教学楼有哪些自习室？">
+                建筑设施
+              </button>
+              <button type="button" data-question="李芳老师教什么课？">
+                教师课程
+              </button>
+              <button type="button" data-question="数据库系统原理周几上课？">
+                课程排课
+              </button>
+              <button type="button" data-question="近期有哪些校园活动？">
+                近期活动
+              </button>
+              <button type="button" data-question="热门活动有哪些？">
+                热门活动
+              </button>
+            </div>
+            <div class="actions">
+              <button id="askBtn" type="submit">查询</button>
+            </div>
+          </form>
+        </div>
+
+        <div id="queryResult" class="result-box"></div>
+      </section>
+
+      <section class="panel browse-panel" data-admin-section="browse">
+        <div class="panel-title">
+          <div class="panel-title-text">
+            <h2>数据浏览</h2>
+            <span class="panel-sub"
+              >浏览历史问答、热门话题、数据表原始记录与系统 SQL 示例</span
+            >
+          </div>
+          <button id="refreshBrowseBtn" type="button" class="secondary-button">
+            刷新
+          </button>
+        </div>
+        <div class="tabs browse-tabs" role="tablist" aria-label="浏览类型">
+          <button class="tab is-active" type="button" data-browse="history">
+            历史查询
+          </button>
+          <button class="tab" type="button" data-browse="popularQueries">
+            热门查询
+          </button>
+          <button class="tab" type="button" data-browse="popularActivities">
+            热门活动
+          </button>
+          <button class="tab" type="button" data-browse="activityParticipants">
+            活动参与
+          </button>
+          <button class="tab" type="button" data-browse="data">数据表</button>
+          <button class="tab" type="button" data-browse="sql">SQL</button>
+        </div>
+        <form id="browseFilterForm" class="browse-filter"></form>
+        <div id="browseContent" class="table-wrap"></div>
+      </section>
+
+      <section class="panel form-panel" data-admin-section="maintain">
+        <div class="panel-title">
+          <div class="panel-title-text">
+            <h2>数据维护</h2>
+            <span class="panel-sub"
+              >在这里新增、编辑或删除建筑、设施、活动与查询记录</span
+            >
+          </div>
+        </div>
+
+        <form id="csvImportForm" class="browse-filter csv-import-form">
+          <label>
+            CSV 导入对象
+            <select id="csvImportEntity" name="entity">
+              <option value="buildings">建筑</option>
+              <option value="facilities">设施</option>
+              <option value="activities">活动</option>
+              <option value="query_logs">查询记录</option>
+            </select>
+          </label>
+          <label>
+            CSV 文件
+            <input id="csvImportFile" name="file" type="file" accept=".csv" />
+          </label>
+          <div class="actions">
+            <button type="submit">导入 CSV</button>
+            <button
+              id="downloadCsvTemplateBtn"
+              type="button"
+              class="secondary-button"
+            >
+              下载模板
+            </button>
+          </div>
+          <p id="csvImportHint" class="form-hint"></p>
+          <div id="csvImportResult" class="csv-import-result"></div>
+        </form>
+
+        <div class="tabs maintenance-tabs" role="tablist" aria-label="维护对象">
+          <button class="tab is-active" data-form="buildingForm" type="button">
+            建筑
+          </button>
+          <button class="tab" data-form="facilityForm" type="button">
+            设施
+          </button>
+          <button class="tab" data-form="activityForm" type="button">
+            活动
+          </button>
+          <button class="tab" data-form="queryLogForm" type="button">
+            查询记录
+          </button>
+        </div>
+
+        <form id="buildingForm" class="crud-form">
+          <input type="hidden" name="building_id" />
+          <label
+            >建筑名称<input name="name" required placeholder="例如：新教学楼"
+          /></label>
+          <label
+            >建筑类型<select name="type" data-options="buildingTypes"></select
+          ></label>
+          <label
+            >所属校区<select name="campus_id" data-options="campuses"></select
+          ></label>
+          <div class="actions">
+            <button type="submit">保存</button>
+            <button
+              type="button"
+              data-reset="buildingForm"
+              class="secondary-button"
+            >
+              清空
+            </button>
+            <button type="button" data-delete="building" class="danger-button">
+              删除
+            </button>
+          </div>
+        </form>
+
+        <form id="facilityForm" class="crud-form hidden">
+          <input type="hidden" name="facility_id" />
+          <label
+            >设施名称<input name="name" required placeholder="例如：H2501"
+          /></label>
+          <label
+            >设施类型<select name="type" data-options="facilityTypes"></select
+          ></label>
+          <label
+            >开放时间<input
+              name="open_time"
+              required
+              placeholder="每日 08:00-22:00"
+          /></label>
+          <label
+            >所属建筑<select
+              name="building_id"
+              data-options="buildings"
+            ></select
+          ></label>
+          <div class="actions">
+            <button type="submit">保存</button>
+            <button
+              type="button"
+              data-reset="facilityForm"
+              class="secondary-button"
+            >
+              清空
+            </button>
+            <button type="button" data-delete="facility" class="danger-button">
+              删除
+            </button>
+          </div>
+        </form>
+
+        <form id="activityForm" class="crud-form hidden">
+          <input type="hidden" name="activity_id" />
+          <label
+            >活动名称<input
+              name="name"
+              required
+              placeholder="例如：数据库答疑会"
+          /></label>
+          <label
+            >主办单位<input
+              name="organizer"
+              required
+              placeholder="计算机科学技术学院"
+          /></label>
+          <label
+            >开始时间<input name="start_time" type="datetime-local" required
+          /></label>
+          <label>结束时间<input name="end_time" type="datetime-local" /></label>
+          <label
+            >举办设施<select
+              name="facility_id"
+              data-options="facilities"
+            ></select
+          ></label>
+          <label
+            >活动简介<textarea name="description" rows="4" required></textarea>
+          </label>
+          <div class="actions">
+            <button type="submit">保存</button>
+            <button
+              type="button"
+              data-reset="activityForm"
+              class="secondary-button"
+            >
+              清空
+            </button>
+            <button type="button" data-delete="activity" class="danger-button">
+              删除
+            </button>
+          </div>
+        </form>
+
+        <form id="queryLogForm" class="crud-form hidden">
+          <label
+            >用户 ID<input
+              name="user_id"
+              type="number"
+              min="1"
+              required
+              value="4"
+          /></label>
+          <label
+            >查询类别<select
+              name="query_category"
+              data-options="queryCategories"
+            ></select
+          ></label>
+          <label
+            >查询内容<input
+              name="query_content"
+              required
+              placeholder="例如：近期有哪些校园活动"
+          /></label>
+          <div class="actions">
+            <button type="submit">写入记录</button>
+            <button
+              type="button"
+              data-reset="queryLogForm"
+              class="secondary-button"
+            >
+              清空
+            </button>
+          </div>
+        </form>
+      </section>
+    </main>
+
+    <script src="app.js"></script>
+  </body>
+</html>

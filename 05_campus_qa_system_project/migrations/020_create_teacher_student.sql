@@ -1,0 +1,14 @@
+-- 020_create_teacher_student.sql
+BEGIN;
+
+CREATE TABLE IF NOT EXISTS teacher (
+  user_id INT PRIMARY KEY REFERENCES users(user_id) ON UPDATE CASCADE ON DELETE CASCADE,
+  title VARCHAR(100) NOT NULL DEFAULT '未定' CHECK (TRIM(title) <> '')
+);
+
+CREATE TABLE IF NOT EXISTS student (
+  user_id INT PRIMARY KEY REFERENCES users(user_id) ON UPDATE CASCADE ON DELETE CASCADE,
+  major VARCHAR(100) NOT NULL DEFAULT '未填写' CHECK (TRIM(major) <> '')
+);
+
+COMMIT;

@@ -1,0 +1,11 @@
+.git
+.idea
+.vscode
+pgdata
+__pycache__
+*.pyc
+*.pyo
+*.log
+.env
+backend/server.out.log
+backend/server.err.log
