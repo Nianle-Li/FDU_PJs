@@ -1,0 +1,54 @@
+services:
+  db:
+    image: postgres:16
+    container_name: fcqa-db
+    environment:
+      POSTGRES_DB: fcqa
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      TZ: Asia/Shanghai
+    ports:
+      - "5432:5432"
+    volumes:
+      - fcqa_pgdata:/var/lib/postgresql/data
+      - ./docker/postgres/01-init.sql:/docker-entrypoint-initdb.d/01-init.sql:ro
+      - ./db:/opt/fcqa/db:ro
+      - ./migrations:/opt/fcqa/migrations:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d fcqa"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+      start_period: 5s
+    restart: unless-stopped
+
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: fcqa-backend
+    environment:
+      FCQA_HOST: 0.0.0.0
+      FCQA_PORT: 8000
+      DATABASE_URL: postgresql://postgres:postgres@db:5432/fcqa
+      FCQA_LLM_MODE: ${FCQA_LLM_MODE:-0}
+      FCQA_LLM_TIMEOUT_SECONDS: ${FCQA_LLM_TIMEOUT_SECONDS:-30}
+      FCQA_LLM_MAX_ROWS: ${FCQA_LLM_MAX_ROWS:-50}
+      DEEPSEEK_API_KEY: ${DEEPSEEK_API_KEY:-}
+      DEEPSEEK_BASE_URL: ${DEEPSEEK_BASE_URL:-https://api.deepseek.com}
+      DEEPSEEK_MODEL: ${DEEPSEEK_MODEL:-deepseek-chat}
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "python -c \"from urllib.request import urlopen; urlopen('http://127.0.0.1:8000/api/health', timeout=5).read()\""]
+      interval: 10s
+      timeout: 5s
+      retries: 6
+      start_period: 10s
+    restart: unless-stopped
+
+volumes:
+  fcqa_pgdata:

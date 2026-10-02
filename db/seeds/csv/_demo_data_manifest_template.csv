@@ -1,0 +1,15 @@
+table_name,target_csv,suggested_row_count,business_scenario,credibility_basis,required_columns,key_constraints,relationship_dependencies,example_row_stub,manual_notes
+campus,campus.csv,4,展示四个主要校区,优先使用真实校区名称,"campus_id|name|address","name 唯一; campus_id 唯一",无,"1|邯郸校区|上海市杨浦区邯郸路220号",补充真实地址或统一风格地址
+building,building.csv,12-20,支撑校区到建筑查询,建筑命名需符合高校场景,"building_id|name|type|campus_id","(campus_id,name) 唯一; type 枚举合法","依赖 campus.campus_id","101|第二教学楼|教学楼|1",同一校区不要重复建筑名
+facility,facility.csv,30-60,支撑地点查询和课程排课,设施类型需与建筑用途匹配,"facility_id|name|type|open_time|building_id","(building_id,name) 唯一; type 枚举合法","依赖 building.building_id","1001|H2201|教室|工作日 08:00-21:30|101",教室和报告厅命名保持一致风格
+users,users.csv,50-100,支撑教师学生和查询记录,使用常见中文姓名与真实院系风格,"user_id|name|department","user_id 唯一; name 非空","无","2001|张晨|计算与智能创新学院",院系名称尽量统一不混写简称
+teacher,teacher.csv,12-25,展示教师授课关系,教师应来自 users 子集,"user_id|title","user_id 唯一; title 非空","依赖 users.user_id","2001|副教授",仅填真实属于教师的 user_id
+student,student.csv,30-70,展示学生用户与活动参与,学生应来自 users 子集,"user_id|major","user_id 唯一; major 非空","依赖 users.user_id","2010|计算机科学与技术",major 与 department 尽量对应
+course,course.csv,20-40,展示课程查询,课程代码风格要可信,"course_master_code|name","course_master_code 唯一且非空","无","COMP130015|数据库系统",课程名避免和活动名混淆
+course_section,course_section.csv,25-50,展示课程班次,班次号需符合代码格式,"course_code|course_master_code","course_code 必须以 course_master_code. 开头","依赖 course.course_master_code","COMP130015.01|COMP130015",每门课可有多个班次
+course_offering,course_offering.csv,30-60,展示不同学期开设实例,学期格式全库统一,"offering_id|course_code|semester","offering_id 唯一; semester 非空","依赖 course_section.course_code","3001|COMP130015.01|2025-2026 秋季学期",同一课程可在同学期并行开设
+course_offering_schedule,course_offering_schedule.csv,50-120,展示上课时间地点,节次和周次必须符合约束,"offering_id|day_of_week|start_period|end_period|week_type|facility_id","复合主键唯一; start_period <= end_period","依赖 course_offering.offering_id; facility.facility_id","3001|周一|1|2|每周|1001",避免把课程排到食堂等不合理地点
+course_offering_teacher,course_offering_teacher.csv,30-80,展示授课教师关联,教师数量与课程规模匹配,"offering_id|teacher_id","(offering_id,teacher_id) 唯一","依赖 course_offering.offering_id; teacher.user_id","3001|2001",联合授课课程可填多行
+activity,activity.csv,15-30,展示校园活动,活动主题时间地点要自洽,"activity_id|name|description|start_time|end_time|organizer|facility_id","(name,start_time,facility_id) 唯一; end_time 不早于 start_time","依赖 facility.facility_id","4001|新生科研导引讲座|面向本科新生的科研入门讲座|2025-09-15 18:30:00|2025-09-15 20:00:00|计算与智能创新学院|1008",说明文字可短但不要空泛重复
+user_activity,user_activity.csv,50-150,展示报名和参与状态,状态分布要符合常识,"user_id|activity_id|status","(user_id,activity_id) 唯一; status 枚举合法","依赖 users.user_id; activity.activity_id","2010|4001|待参加",取消和缺席比例不要过高
+query_log,query_log.csv,100-300,展示系统使用痕迹,查询内容应来自真实使用场景,"log_id|user_id|query_category|query_content|query_time","log_id 唯一; query_category 枚举合法","依赖 users.user_id","5001|2010|课程|数据库系统什么时候上课|2025-09-16 09:32:10",高频问题可重复但时间建议错开

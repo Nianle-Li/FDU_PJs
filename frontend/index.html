@@ -1,0 +1,198 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>复旦校园百事通 · 用户端</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body class="user-shell">
+    <header class="topbar user-topbar">
+      <div>
+        <h1>复旦校园百事通</h1>
+        <p>查活动、约场地、问课程、看校区——一站式的旦园问答台</p>
+      </div>
+      <nav class="app-nav" aria-label="前端入口">
+        <a class="is-active" href="index.html">用户端</a>
+        <a href="admin.html">管理员端</a>
+      </nav>
+      <div id="health" class="status">连接中</div>
+    </header>
+
+    <main class="user-workspace">
+      <section class="panel user-hero">
+        <div class="hero-copy">
+          <span class="eyebrow">旦园问答台</span>
+          <h2>一句话，便知旦园事</h2>
+          <p>
+            无论是想看看近期的校园活动、查一查自己的预约行程，还是顺口问一句课程时间、自习室开放或校区位置，这里都会即时给你答案。
+          </p>
+        </div>
+        <div class="hero-controls">
+          <label>
+            当前用户
+            <select id="userSelect"></select>
+          </label>
+          <div id="userProfile" class="profile-strip"></div>
+        </div>
+      </section>
+
+      <nav class="tabs user-section-tabs" role="tablist" aria-label="功能板块">
+        <button type="button" class="tab" data-section="activity" role="tab">
+          近期活动
+        </button>
+        <button type="button" class="tab" data-section="reservation" role="tab">
+          我的行程
+        </button>
+        <button
+          type="button"
+          class="tab is-active"
+          data-section="assistant"
+          role="tab"
+          aria-selected="true"
+        >
+          自然语言问答
+        </button>
+        <button type="button" class="tab" data-section="explore" role="tab">
+          校园速览
+        </button>
+      </nav>
+
+      <section
+        id="sectionActivity"
+        class="panel activity-panel section-pane hidden"
+        data-section="activity"
+      >
+        <div class="panel-title">
+          <div class="panel-title-text">
+            <h2>近期活动</h2>
+            <span class="panel-sub"
+              >按关键词、校区或时间筛选，点击卡片即可预约</span
+            >
+          </div>
+          <button
+            id="refreshActivitiesBtn"
+            type="button"
+            class="secondary-button"
+          >
+            刷新
+          </button>
+        </div>
+        <form id="activityFilterForm" class="user-filter">
+          <label
+            >关键词<input
+              name="q"
+              type="search"
+              placeholder="活动、主办方、地点"
+          /></label>
+          <label
+            >校区<select name="campus_id" id="campusFilter"></select
+          ></label>
+          <label
+            >开始不早于<input name="start_from" type="datetime-local"
+          /></label>
+          <div class="actions">
+            <button type="submit">筛选</button>
+            <button
+              id="clearActivityFilterBtn"
+              type="button"
+              class="secondary-button"
+            >
+              清空
+            </button>
+          </div>
+        </form>
+        <div id="activityCards" class="activity-grid"></div>
+      </section>
+
+      <aside
+        id="sectionReservation"
+        class="panel reservation-panel section-pane hidden"
+        data-section="reservation"
+      >
+        <div class="panel-title">
+          <div class="panel-title-text">
+            <h2>我的行程</h2>
+            <span class="panel-sub">已预约的活动会出现在这里，随时可取消</span>
+          </div>
+          <button
+            id="refreshReservationsBtn"
+            type="button"
+            class="secondary-button"
+          >
+            刷新
+          </button>
+        </div>
+        <div id="reservationList" class="reservation-list"></div>
+      </aside>
+
+      <section
+        id="sectionAssistant"
+        class="panel assistant-panel section-pane"
+        data-section="assistant"
+      >
+        <div class="panel-title">
+          <div class="panel-title-text">
+            <h2>自然语言问答</h2>
+            <span class="panel-sub"
+              >直接用中文提问，后台会自动转写为 SQL 查询数据库并返回结果</span
+            >
+          </div>
+        </div>
+        <form id="nlQueryForm" class="user-nl-form">
+          <textarea id="nlQuestion" name="question" rows="3" required>
+近期有哪些校园活动？</textarea
+          >
+          <input name="user_id" type="hidden" value="4" />
+          <div class="question-chips">
+            <button type="button" data-question="近期有哪些校园活动？">
+              近期活动
+            </button>
+            <button type="button" data-question="第二教学楼有哪些自习室？">
+              自习空间
+            </button>
+            <button type="button" data-question="数据库系统原理周几上课？">
+              课程安排
+            </button>
+            <button type="button" data-question="热门活动有哪些？">
+              热门活动
+            </button>
+          </div>
+          <div class="actions">
+            <button type="submit">提问</button>
+          </div>
+        </form>
+        <div id="nlAnswer" class="answer-box compact-answer"></div>
+      </section>
+
+      <section
+        id="sectionExplore"
+        class="panel explore-panel section-pane hidden"
+        data-section="explore"
+      >
+        <div class="panel-title">
+          <div class="panel-title-text">
+            <h2>校园速览</h2>
+            <span class="panel-sub"
+              >选个类别，顺手看看那些藏在数据里的校园角落</span
+            >
+          </div>
+          <select id="exploreEntity" aria-label="切换浏览对象">
+            <option value="facilities">设施</option>
+            <option value="courses">课程</option>
+            <option value="buildings">建筑</option>
+          </select>
+        </div>
+        <form id="exploreForm" class="explore-form">
+          <input name="q" type="search" placeholder="输入关键词快速查看" />
+          <button type="submit">查看</button>
+        </form>
+        <div id="exploreContent" class="compact-list"></div>
+      </section>
+
+      <div id="message" class="toast-message" aria-live="polite"></div>
+    </main>
+
+    <script src="user.js"></script>
+  </body>
+</html>
